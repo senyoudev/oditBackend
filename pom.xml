@@ -15,6 +15,7 @@
   <modules>
     <module>apigw</module>
     <module>service-discovery</module>
+    <module>auth-service</module>
   </modules>
 
   <properties>
