@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apigw" />
         <module name="service-discovery" />
+        <module name="auth-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
