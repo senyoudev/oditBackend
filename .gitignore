@@ -1,0 +1,49 @@
+# Spring Boot target directory
+/target/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Maven specific files
+mvnw
+mvnw.cmd
+.settings/
+.classpath
+.project
+
+# Gradle specific files
+.gradle/
+build/
+
+# Application properties
+#/src/main/resources/application.properties
+#/src/main/resources/application.yml
+
+# Logs
+*.log
+
+# Temporary files
+/tmp/
+temp/
+*.tmp
+
+# Package files
+*.jar
+*.war
+
+# Dependency directories (Maven)
+~/.m2/repository/
+
+# IDE generated files
+.springBeans
+.idea_modules/
+out/
+*.iml
+*.ipr
+*.iws
+*.classpath
+*.project
