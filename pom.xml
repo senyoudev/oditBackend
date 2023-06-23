@@ -8,10 +8,14 @@
   <artifactId>oditservices</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <name>oditservices</name>
+  <!-- FIXME change it to the project's website -->
+  <url>https://www.odit.com</url>
   <modules>
     <module>apigw</module>
     <module>service-discovery</module>
-    <module>auth-service</module>
+    <module>auth</module>
     <module>project-service</module>
   </modules>
 

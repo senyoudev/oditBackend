@@ -3,13 +3,13 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yassine1
+      POSTGRES_USER: odit
+      POSTGRES_PASSWORD: password
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
     ports:
-      - "5430:5432"
+      - "5433:5432"
     networks:
       - postgres
     restart: unless-stopped
@@ -34,6 +34,7 @@ services:
       - "9411:9411"
     networks:
       - spring
+
 networks:
   postgres:
     driver: bridge
