@@ -1,7 +1,6 @@
 package com.oditbackend.authservice.service;
 
 
-import ch.qos.logback.core.encoder.EchoEncoder;
 import com.oditbackend.authservice.Dto.AuthenticationRequest;
 import com.oditbackend.authservice.Dto.AuthenticationResponse;
 import com.oditbackend.authservice.Dto.RegisterRequest;
@@ -10,14 +9,17 @@ import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final  UserRepository userRepository;
@@ -44,10 +46,12 @@ public class AuthService {
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .message("Well Registered")
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -55,11 +59,13 @@ public class AuthService {
                 )
         );
 
+
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .message("well loggedIn")
                 .build();
     }
 
