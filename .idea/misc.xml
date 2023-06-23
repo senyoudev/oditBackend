@@ -5,14 +5,23 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/project-service/pom.xml" />
+        <option value="$PROJECT_DIR$/project-module/pom.xml" />
+        <option value="$PROJECT_DIR$/zipkin/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/discovery-server/apigw/pom.xml" />
         <option value="$PROJECT_DIR$/discovery-server/pom.xml" />
+        <option value="$PROJECT_DIR$/project-module/pom.xml" />
+        <option value="$PROJECT_DIR$/zipkin/pom.xml" />
       </set>
     </option>
+  </component>
+  <component name="PWA">
+    <option name="enabled" value="true" />
+    <option name="wasEnabledAtLeastOnce" value="true" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK" />
 </project>
