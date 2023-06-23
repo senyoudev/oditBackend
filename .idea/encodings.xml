@@ -9,9 +9,14 @@
     <file url="file://$PROJECT_DIR$/discovery-server/apigw/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/discovery-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/discovery-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-module/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-discovery/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-discovery/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zipkin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zipkin/src/main/resources" charset="UTF-8" />
   </component>
 </project>
