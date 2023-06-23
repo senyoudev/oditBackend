@@ -1,0 +1,30 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: project
+  datasource:
+    password: yassine1
+    url: jdbc:postgresql://localhost:5430/project
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+Eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    persist-authorization: true
+  enable-spring-security: true
