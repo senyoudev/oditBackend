@@ -27,6 +27,9 @@ public class AuthService {
 
 
     public AuthenticationResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return AuthenticationResponse.builder().token("").message("Email already exists.").build();
+        }
         validateRegistrationRequest(request);
         var user = User.builder()
                 .firstName(request.getFirstName())
