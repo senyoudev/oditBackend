@@ -11,10 +11,14 @@ spring:
           uri: lb://auth
           predicates:
             - Path=/api/v1/auth/**
+
+
         - id: project
-          uri: lb://PROJECT
+          uri: lb://project
           predicates:
-            - Path=/api/v1/projects/**, /api/v1/projectmembers/**
+            - Path=/api/v1/projects/**
+          filters:
+            - AuthenticationFilter
 
 eureka:
   client:
