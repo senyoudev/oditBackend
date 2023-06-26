@@ -17,6 +17,7 @@
     <bytecodeTargetLevel>
       <module name="auth-service" target="17" />
       <module name="discovery-server" target="17" />
+      <module name="room-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

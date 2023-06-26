@@ -1,11 +1,11 @@
 server:
-  port: 8081
+  port: 8090
 spring:
   application:
     name: project
   datasource:
-    password: yassine1
-    url: jdbc:postgresql://localhost:5430/project
+    password: password
+    url: jdbc:postgresql://localhost:5433/projects
     username: postgres
   jpa:
     hibernate:
