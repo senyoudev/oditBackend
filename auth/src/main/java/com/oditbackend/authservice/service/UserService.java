@@ -21,6 +21,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthService authService;
 
     public ResponseEntity<User> getProfile(Integer id){
         Optional<User> user = userRepository.findById(id);
@@ -35,8 +36,12 @@ public class UserService {
         user.get().setLastName(request.getLastName());
         userRepository.save(user.get());
         var jwtToken = jwtService.generateToken(user.get());
+        var refreshToken = jwtService.generateRefreshToken(user.get());
+        authService.revokeAllUserTokens(user.get());
+        authService.saveUserToken(user.get(), jwtToken);
         AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .message("profile updated ")
                 .build();
         return ResponseEntity.ok(authenticationResponse);
@@ -48,8 +53,12 @@ public class UserService {
         user.get().setEmail(request.getEmail());
         userRepository.save(user.get());
         var jwtToken = jwtService.generateToken(user.get());
+        var refreshToken = jwtService.generateRefreshToken(user.get());
+        authService.revokeAllUserTokens(user.get());
+        authService.saveUserToken(user.get(), jwtToken);
         AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .message("email updated ")
                 .build();
 
@@ -62,9 +71,13 @@ public class UserService {
         user.get().setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user.get());
         var jwtToken = jwtService.generateToken(user.get());
+        var refreshToken = jwtService.generateRefreshToken(user.get());
+        authService.revokeAllUserTokens(user.get());
+        authService.saveUserToken(user.get(), jwtToken);
 
         AuthenticationResponse authResponse =  AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .message("password updated ")
                 .build();
         return ResponseEntity.ok(authResponse);

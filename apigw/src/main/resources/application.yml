@@ -18,7 +18,7 @@ spring:
           predicates:
             - Path=/api/v1/projects/**, /api/v1/projectmembers/**
           filters:
-            - TokenFilter
+            - AuthenticationFilter
 eureka:
   client:
     service-url:
