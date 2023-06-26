@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 
@@ -77,8 +78,7 @@ public class AuthService {
             );
 
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-
+                .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
@@ -91,8 +91,13 @@ public class AuthService {
     }
 
 
-    public void validateToken(String token) {
+    public Integer validateToken(String token) {
         jwtService.validateToken(token);
+        String email = jwtService.extractUsername(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
+        return user.getId();
     }
 
     private void validateRegistrationRequest(RegisterRequest request) {
@@ -125,14 +130,16 @@ public class AuthService {
     }
 
     public void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
+        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        if(validUserTokens.isEmpty()) {
             return;
+        }
+
         validUserTokens.forEach(token -> {
             token.setExpired(true);
-            token.setRevoked(true);
+           token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+       tokenRepository.saveAll(validUserTokens);
     }
 
     public void refreshToken(

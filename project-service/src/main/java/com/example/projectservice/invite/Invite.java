@@ -1,4 +1,5 @@
-package com.example.projectservice.project;
+package com.example.projectservice.invite;
+
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,31 +15,25 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(
-        uniqueConstraints=
-        @UniqueConstraint(columnNames={"userId", "title"})
-)
-public class Project {
+@Table
+public class Invite {
 
     @Id
     @SequenceGenerator(
-            name = "project_id_sequence",
-            sequenceName = "project_id_sequence"
+            name = "invite_id_sequence",
+            sequenceName = "invite_id_sequence"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "project_id_sequence"
+            generator = "invite_id_sequence"
     )
     private Integer id;
     @Column(nullable = false)
-    private Integer userId;
+    private Integer projectId;
     @Column(nullable = false)
-    private String title;
-    @Column(nullable = false)
-    private String description;
-    @Column(nullable = false)
-    private Boolean isPublic;
+    private Integer invitedId;
 
     @CreationTimestamp
     private Date creationDate;
 }
+
