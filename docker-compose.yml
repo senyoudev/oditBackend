@@ -13,20 +13,7 @@ services:
     networks:
       - postgres
     restart: unless-stopped
-  projectdb:
-    container_name: projectdb
-    image: postgres
-    environment:
-      POSTGRES_USER: postgres #odit
-      POSTGRES_PASSWORD: yassine1 #password
-      PGDATA: /data/postgres
-    volumes:
-      - postgres:/data/postgres
-    ports:
-      - "5430:5432"
-    networks:
-      - postgres
-    restart: unless-stopped
+
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
