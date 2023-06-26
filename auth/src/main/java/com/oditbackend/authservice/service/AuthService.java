@@ -76,8 +76,13 @@ public class AuthService {
     }
 
 
-    public void validateToken(String token) {
+    public Integer validateToken(String token) {
         jwtService.validateToken(token);
+        String email = jwtService.extractUsername(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
+        return user.getId();
     }
 
     private void validateRegistrationRequest(RegisterRequest request) {

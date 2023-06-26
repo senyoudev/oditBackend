@@ -3,6 +3,7 @@ package com.oditbackend.authservice.controller;
 import com.oditbackend.authservice.Dto.AuthenticationRequest;
 import com.oditbackend.authservice.Dto.AuthenticationResponse;
 import com.oditbackend.authservice.Dto.RegisterRequest;
+import com.oditbackend.authservice.Dto.TokenValidationResponse;
 import com.oditbackend.authservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +30,8 @@ public class AuthController {
 
 
     @GetMapping("/validate")
-    public String validateToken(@RequestParam("token") String token) {
-        service.validateToken(token);
-        return "Token is valid";
+    public TokenValidationResponse validateToken(@RequestParam("token") String token) {
+        return new TokenValidationResponse(service.validateToken(token),"Token is valid");
+
     }
 }

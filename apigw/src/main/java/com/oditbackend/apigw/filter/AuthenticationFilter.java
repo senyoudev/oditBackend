@@ -15,8 +15,11 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 @Component
@@ -42,9 +45,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
 
             // Validate the token
-            boolean isValidToken = validateToken(token);
-            if (isValidToken) {
-                return chain.filter(exchange);
+            Integer userId = validateToken(token);
+            if (userId != -1) {
+                URI uri = null;
+                try {
+                    //Todo check if we have many parameters
+                    uri = new URI(request.getURI()+"?userId="+userId);
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+                ServerHttpRequest modifiedRequest = request.mutate().uri(uri).build();
+                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                return chain.filter(modifiedExchange);
             } else {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
@@ -53,15 +65,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             }
         };
     }
-    public Boolean validateToken(String token){
+    public Integer validateToken(String token){
         try{
             InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
-            template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate?token="+token, String.class);
-            log.info(instance.getHomePageUrl());
-            return true;
+            TokenValidationResponse res = template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate?token="+token, TokenValidationResponse.class);
+            return res.getUserId();
         }catch (Exception e){
             log.info(e.getMessage());
-            return false;
+            return -1;
         }
     }
 

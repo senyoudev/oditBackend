@@ -13,8 +13,8 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
-    public List<Project> getUserProjects(@RequestParam Integer id) {
-        return projectService.getUserProject(id);
+    public List<Project> getUserProjects(@RequestParam Integer userId) {
+        return projectService.getUserProject(userId);
     }
 
     @GetMapping(value = "{id}")
@@ -23,17 +23,17 @@ public class ProjectController {
     }
 
     @PostMapping
-    public void createProject(@RequestBody ProjectCreationRequest projectCreationRequest){
-        projectService.createProject(projectCreationRequest);
+    public Project createProject(@RequestParam Integer userId, @RequestBody ProjectCreationRequest projectCreationRequest){
+        return projectService.createProject(userId,projectCreationRequest);
     }
 
     @PutMapping(value = "{id}")
-    public void updateProject(@PathVariable("id") Integer id,@RequestBody ProjectUpdateRequest projectUpdateRequest){
-        projectService.updateProject(id,projectUpdateRequest);
+    public Project updateProject(@PathVariable("id") Integer id,@RequestBody ProjectUpdateRequest projectUpdateRequest){
+       return projectService.updateProject(id,projectUpdateRequest);
     }
 
     @DeleteMapping(value = "{id}")
-    public void updateProject(@PathVariable("id") Integer id){
-        projectService.deleteProject(id);
+    public String updateProject(@PathVariable("id") Integer id){
+        return projectService.deleteProject(id);
     }
 }
