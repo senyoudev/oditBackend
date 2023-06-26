@@ -39,8 +39,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     authHeader = authHeader.substring(7);
                 }
                 try {
-                   template.getForObject("http://auth/validate?token" + authHeader, String.class);
-
+                   template.getForObject("http://localhost:8080/validate?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtZXNrYWZleW91bmVzM0Bob3RtYWlsLmNvbSIsImlhdCI6MTY4NzU3NDM1OSwiZXhwIjoxNjg3NjYwNzU5fQ.Y2HFsorbGRTounrJ3IEo_RsBhAwEWtRuJHU--Cf238s" , String.class);
 
                 } catch (Exception e) {
                     return handleUnauthorized(exchange.getResponse(), "Unauthorized access to application");

@@ -1,0 +1,16 @@
+com\oditbackend\authservice\Dto\AuthenticationResponse.class
+com\oditbackend\authservice\controller\AuthController.class
+com\oditbackend\authservice\entity\User.class
+com\oditbackend\authservice\Dto\AuthenticationRequest.class
+com\oditbackend\authservice\service\AuthService.class
+com\oditbackend\authservice\AuthServiceApplication.class
+com\oditbackend\authservice\service\JwtService.class
+com\oditbackend\authservice\Dto\RegisterRequest$RegisterRequestBuilder.class
+com\oditbackend\authservice\config\SecurityConfiguration.class
+com\oditbackend\authservice\entity\User$UserBuilder.class
+com\oditbackend\authservice\config\AuthConfig.class
+com\oditbackend\authservice\Dto\AuthenticationRequest$AuthenticationRequestBuilder.class
+com\oditbackend\authservice\repository\UserRepository.class
+com\oditbackend\authservice\Dto\AuthenticationResponse$AuthenticationResponseBuilder.class
+com\oditbackend\authservice\Dto\RegisterRequest.class
+com\oditbackend\authservice\entity\Role.class
