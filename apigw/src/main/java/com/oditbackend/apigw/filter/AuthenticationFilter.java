@@ -16,8 +16,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-    @Autowired
-    private RouteValidator validator;
+
 
         @Autowired
     private RestTemplate template;
@@ -29,7 +28,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
-            if (validator.isSecured.test(exchange.getRequest())) {
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     throw new RuntimeException("missing authorization header");
                 }
@@ -39,12 +37,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     authHeader = authHeader.substring(7);
                 }
                 try {
-                   template.getForObject("http://localhost:8080/validate?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtZXNrYWZleW91bmVzM0Bob3RtYWlsLmNvbSIsImlhdCI6MTY4NzU3NDM1OSwiZXhwIjoxNjg3NjYwNzU5fQ.Y2HFsorbGRTounrJ3IEo_RsBhAwEWtRuJHU--Cf238s" , String.class);
+                   template.getForObject("http://localhost:8080/validate?token=",authHeader[] , String.class);
 
                 } catch (Exception e) {
                     return handleUnauthorized(exchange.getResponse(), "Unauthorized access to application");
                 }
-            }
+
             return chain.filter(exchange);
         });
     }

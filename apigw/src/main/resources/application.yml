@@ -8,7 +8,7 @@ spring:
     gateway:
       routes:
         - id: Auth
-          uri: lb://auth
+          uri: lb://AUTH
           predicates:
             - Path=/api/v1/auth/**
 
@@ -16,10 +16,9 @@ spring:
         - id: project
           uri: lb://project
           predicates:
-            - Path=/api/v1/projects/**
+            - Path=/api/v1/projects/**, /api/v1/projectmembers/**
           filters:
-            - AuthenticationFilter
-
+            - TokenFilter
 eureka:
   client:
     service-url:
