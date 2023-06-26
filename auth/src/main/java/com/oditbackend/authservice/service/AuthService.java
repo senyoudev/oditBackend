@@ -59,11 +59,11 @@ public class AuthService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));

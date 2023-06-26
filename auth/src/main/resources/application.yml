@@ -6,7 +6,7 @@ spring:
     name: auth
   datasource:
     url: jdbc:postgresql://localhost:5433/clients
-    username: odit
+    username: postgres
     password: password
   jpa:
     hibernate:
