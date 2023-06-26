@@ -5,9 +5,9 @@ spring:
   application:
     name: auth
   datasource:
-    url: jdbc:postgresql://localhost:5433/clients
-    username: odit
-    password: password
+    url: jdbc:postgresql://localhost:5433/client
+    username: postgres
+    password: yassine1
   jpa:
     hibernate:
       ddl-auto: update

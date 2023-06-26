@@ -8,14 +8,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="apigw" />
-        <module name="service-discovery" />
         <module name="auth" />
         <module name="project-service" />
-
+        <module name="service-discovery" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="discovery-server" target="17" />
+      <module name="room-service" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
