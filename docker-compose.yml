@@ -3,13 +3,27 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_USER: odit
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres #odit
+      POSTGRES_PASSWORD: yassine1 #password
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
     ports:
       - "5433:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  projectdb:
+    container_name: projectdb
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres #odit
+      POSTGRES_PASSWORD: yassine1 #password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5430:5432"
     networks:
       - postgres
     restart: unless-stopped
