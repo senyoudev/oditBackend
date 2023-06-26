@@ -1,12 +1,11 @@
 package com.oditbackend.authservice.service;
 
-import com.oditbackend.authservice.Dto.AuthenticationResponse;
-import com.oditbackend.authservice.Dto.EmailUpdateRequest;
-import com.oditbackend.authservice.Dto.PasswordUpdateRequest;
-import com.oditbackend.authservice.Dto.ProfileUpdateRequest;
+import com.oditbackend.authservice.Dto.*;
 import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,60 +21,83 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public ResponseEntity<User> getProfile(Integer id){
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) return (ResponseEntity<User>) ResponseEntity.notFound();
-        return ResponseEntity.ok(user.get());
+    public ProfileResponse getProfile(String authorization){
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
+        ProfileResponse profile = new ProfileResponse(user.getFirstName(),user.getLastName(),user.getEmail(),user.getRole());
+
+        return profile;
     }
 
-    public ResponseEntity<AuthenticationResponse> updateProfile(Integer id, ProfileUpdateRequest request) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) return (ResponseEntity<AuthenticationResponse>) ResponseEntity.notFound();
-        user.get().setFirstName(request.getFirstName());
-        user.get().setLastName(request.getLastName());
-        userRepository.save(user.get());
-        var jwtToken = jwtService.generateToken(user.get());
+    public AuthenticationResponse updateProfile(String authorization, ProfileUpdateRequest request) {
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with id {id} does not exist"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
         AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
                 .token(jwtToken)
                 .message("profile updated ")
                 .build();
-        return ResponseEntity.ok(authenticationResponse);
+        return authenticationResponse;
     }
 
-    public ResponseEntity<AuthenticationResponse> updateEmail(Integer id, EmailUpdateRequest request) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) return (ResponseEntity<AuthenticationResponse>) ResponseEntity.notFound();
-        user.get().setEmail(request.getEmail());
-        userRepository.save(user.get());
-        var jwtToken = jwtService.generateToken(user.get());
-        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
-                .token(jwtToken)
-                .message("email updated ")
-                .build();
+    public AuthenticationResponse updateEmail(String authorization, EmailUpdateRequest request) {
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
 
-        return ResponseEntity.ok(authenticationResponse);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
+        if(isValidEmail(request.getEmail())) {
+            user.setEmail(request.getEmail());
+            userRepository.save(user);
+            var jwtToken = jwtService.generateToken(user);
+            AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .message("email updated ")
+                    .build();
+
+            return authenticationResponse;
+        }else{
+            throw new IllegalArgumentException("Invalid email format.");
+        }
     }
-    public ResponseEntity<AuthenticationResponse> updatePassword(Integer id, PasswordUpdateRequest request) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) return  (ResponseEntity<AuthenticationResponse>) ResponseEntity.notFound();
+    public AuthenticationResponse updatePassword(String authorization, PasswordUpdateRequest request) {
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with id {id} does not exist"));
 
-        user.get().setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(user.get());
-        var jwtToken = jwtService.generateToken(user.get());
+        //Todo: password validation
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
 
         AuthenticationResponse authResponse =  AuthenticationResponse.builder()
                 .token(jwtToken)
                 .message("password updated ")
                 .build();
-        return ResponseEntity.ok(authResponse);
+        return authResponse;
     }
 
-    public ResponseEntity<String> deleteAccount(Integer id){
-        Optional<User> user = userRepository
-                .findById(id);
-        if (!user.isPresent()) return (ResponseEntity<String>) ResponseEntity.notFound();
+    public String deleteAccount(String authorization){
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new IllegalStateException("user with id {id} does not exist"));
 
-        userRepository.delete(user.get());
-        return  ResponseEntity.ok("account deleted");
+        userRepository.delete(user);
+        return "account deleted";
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.matches("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$");
     }
 }

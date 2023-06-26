@@ -13,8 +13,8 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
-    public List<Project> getProjects() {
-        return projectService.getProjects();
+    public List<Project> getUserProjects(@RequestParam Integer id) {
+        return projectService.getUserProject(id);
     }
 
     @GetMapping(value = "{id}")

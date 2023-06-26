@@ -2,9 +2,10 @@ package com.oditbackend.authservice.controller;
 
 import com.oditbackend.authservice.Dto.*;
 import com.oditbackend.authservice.entity.User;
-import com.oditbackend.authservice.service.AuthService;
 import com.oditbackend.authservice.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,27 +15,27 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService service;
 
-    @GetMapping(value = "{id}")
-    public ResponseEntity<User> getProfile(@PathVariable("id") Integer id) {
-        return service.getProfile(id);
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> Profile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        return ResponseEntity.ok(service.getProfile(authorization));
     }
 
-    @PutMapping(value = "/profile/{id}")
-    public ResponseEntity<AuthenticationResponse> updateProfile(@PathVariable("id") Integer id,@RequestBody ProfileUpdateRequest request){
-        return service.updateProfile(id,request);
+    @PutMapping(value = "/profile")
+    public ResponseEntity<AuthenticationResponse> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody ProfileUpdateRequest request){
+        return ResponseEntity.ok(service.updateProfile(authorization,request));
     }
 
-    @PutMapping(value = "/email/{id}")
-    public ResponseEntity<AuthenticationResponse> updateEmail(@PathVariable("id") Integer id,@RequestBody EmailUpdateRequest request){
-        return service.updateEmail(id,request);
+    @PutMapping(value = "/email")
+    public ResponseEntity<Object> updateEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody EmailUpdateRequest request){
+        return ResponseEntity.ok(service.updateEmail(authorization,request));
     }
 
-    @PutMapping(value = "/password/{id}")
-    public ResponseEntity<AuthenticationResponse> updatePassword(@PathVariable("id") Integer id,@RequestBody PasswordUpdateRequest request){
-        return service.updatePassword(id,request);
+    @PutMapping(value = "/password")
+    public ResponseEntity<AuthenticationResponse> updatePassword(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody PasswordUpdateRequest request){
+        return ResponseEntity.ok(service.updatePassword(authorization,request));
     }
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteAccount(@PathVariable("id") Integer id){
-        return service.deleteAccount(id);
+    @DeleteMapping
+    public ResponseEntity<String> deleteAccount(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization){
+        return  ResponseEntity.ok(service.deleteAccount(authorization));
     }
 }

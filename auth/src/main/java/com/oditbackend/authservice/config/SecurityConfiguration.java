@@ -18,7 +18,7 @@ import static org.springframework.http.HttpMethod.GET;
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
-    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**"};
+    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**","/api/v1/users/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

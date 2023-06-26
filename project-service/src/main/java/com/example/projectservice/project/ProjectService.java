@@ -10,10 +10,11 @@ import java.util.List;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    public List<Project> getProjects(){
-        return projectRepository.findAll();
-    }
 
+    public List<Project> getUserProject(Integer userId){
+        List<Project> projects = projectRepository.findByOwner(userId);
+        return projects;
+    }
     public Project getProject(Integer id){
         Project project = projectRepository
                 .findById(id)

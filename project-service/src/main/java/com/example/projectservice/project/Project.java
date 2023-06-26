@@ -30,9 +30,13 @@ public class Project {
             generator = "project_id_sequence"
     )
     private Integer id;
+    @Column(nullable = false)
     private Integer owner;
+    @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
     private String description;
+    @Column(nullable = false)
     private Boolean isPublic;
 
     @CreationTimestamp
