@@ -26,7 +26,7 @@ public class SecurityConfiguration {
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(whiteListedRoutes).permitAll()
-                        .requestMatchers(GET,"/api/v1/admin")
+                        .requestMatchers(GET,"/api/v1/admin/**")
                         .hasAnyAuthority(Role.Admin.name())
                         .anyRequest().authenticated()
                 )
