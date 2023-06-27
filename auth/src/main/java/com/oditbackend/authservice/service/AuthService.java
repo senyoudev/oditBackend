@@ -1,6 +1,7 @@
 package com.oditbackend.authservice.service;
 
 
+import com.oditbackend.authservice.Dto.TokenValidationResponse;
 import com.oditbackend.authservice.entity.Token;
 import com.oditbackend.authservice.entity.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,13 +92,19 @@ public class AuthService {
     }
 
 
-    public Integer validateToken(String token) {
+    public TokenValidationResponse validateToken(String token) {
         jwtService.validateToken(token);
         String email = jwtService.extractUsername(token);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
-        return user.getId();
+        TokenValidationResponse tokenValidationResponse = TokenValidationResponse
+                .builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .message("token is valid")
+                .build();
+        return tokenValidationResponse;
     }
 
     public boolean isTokenValidAsAdmin(String token) {

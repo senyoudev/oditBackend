@@ -58,14 +58,16 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 }
             }
             // Validate the token
-            Integer userId = validateToken(token);
+            TokenValidationResponse tokenResponse = validateToken(token);
+            Integer userId = tokenResponse.getUserId();
+            String username = tokenResponse.getUsername();
             if (userId != -1) {
                 URI uri = null;
                 try {
 //                    uri = new URI(request.getURI()+"?userId="+userId);
                     String existingUri = request.getURI().toString();
                     String parameterSeparator = existingUri.contains("?") ? "&" : "?";
-                    uri = new URI(existingUri + parameterSeparator + "userId=" + userId);
+                    uri = new URI(existingUri + parameterSeparator + "userId=" + userId + "&username="+username);
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
@@ -80,14 +82,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             }
         };
     }
-    public Integer validateToken(String token){
+    public TokenValidationResponse validateToken(String token){
         try{
             InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
             TokenValidationResponse res = template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate?token="+token, TokenValidationResponse.class);
-            return res.getUserId();
+            return res;
         }catch (Exception e){
             log.info(e.getMessage());
-            return -1;
+            return null;
         }
     }
 

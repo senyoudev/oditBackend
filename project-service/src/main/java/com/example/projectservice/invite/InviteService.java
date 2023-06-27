@@ -32,11 +32,14 @@ public class InviteService {
         return inviteRepository.findByUserEmail(userEmail);
     }
 
-    public Invite sendInvitation(Integer userId,InvitationCreationRequest request) {
+    public Invite sendInvitation(Integer userId,InvitationCreationRequest request,String username) {
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
-        if(userId != project.getUserId()) {
+        if(userId != project.getUserId() ) {
             throw new UnauthorizedException("Only project owners can send invitations.");
+        }
+        if(!request.getUserEmail().equals(username)) {
+            throw new UnauthorizedException("You can't send invitation to your self.");
         }
             Invite invite = Invite.builder()
                     .project(project)
@@ -51,15 +54,21 @@ public class InviteService {
 
     }
 
-    public void acceptInvitation(Integer invitationId) {
+    public void acceptInvitation(Integer invitationId,String username) {
         Invite invitation = getInvitationById(invitationId);
+        if(!invitation.getUserEmail().equals(username)) {
+            throw new UnauthorizedException("You Can Accept Only Your Invitations");
+       }
         invitation.setIsAccepted(true);
         inviteRepository.save(invitation);
         //here we send a notif to the admin
     }
 
-    public String declineInvitation(Integer invitationId) {
+    public String declineInvitation(Integer invitationId,String username) {
         Invite invitation = getInvitationById(invitationId);
+        if(!invitation.getUserEmail().equals(username)) {
+            throw new UnauthorizedException("You Can Accept Only Your Invitations");
+        }
         inviteRepository.delete(invitation);
         //here we send a notif to the admin
         return "Deleted Successfully";

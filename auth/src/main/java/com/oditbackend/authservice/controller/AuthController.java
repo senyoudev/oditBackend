@@ -34,7 +34,7 @@ public class AuthController {
 
     @GetMapping("/validate")
     public TokenValidationResponse validateToken(@RequestParam("token") String token) {
-        return new TokenValidationResponse(service.validateToken(token),"Token is valid");
+        return service.validateToken(token);
     }
     @GetMapping("/validate-admin")
     public Boolean isTokenValidAsAdmin(@RequestParam("token") String token) {

@@ -14,7 +14,7 @@ public class InviteController {
     private final InviteService inviteService;
 
     @GetMapping
-    public List<Invite> getUserInvitations(@RequestBody String email) {
+    public List<Invite> getUserInvitations(@RequestParam String email) {
         return inviteService.getInvitationsByUserEmail(email);
     }
 
@@ -24,18 +24,18 @@ public class InviteController {
     }
 
     @PostMapping
-    public Invite sendInvitation(@RequestParam Integer userId,@RequestBody InvitationCreationRequest request){
-        return inviteService.sendInvitation(userId,request);
+    public Invite sendInvitation(@RequestParam Integer userId,@RequestBody InvitationCreationRequest request,@RequestParam String username){
+        return inviteService.sendInvitation(userId,request,username);
     }
 
     @PutMapping("/{id}/accept")
-    public ResponseEntity<Void> acceptInvitation(@PathVariable("id") Integer invitationId) {
-        inviteService.acceptInvitation(invitationId);
+    public ResponseEntity<Void> acceptInvitation(@PathVariable("id") Integer invitationId,@RequestParam String username) {
+        inviteService.acceptInvitation(invitationId,username);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "{id}")
-    public String removeInvitation(@PathVariable("id") Integer id){
-        return inviteService.declineInvitation(id);
+    public String removeInvitation(@PathVariable("id") Integer id,@RequestParam String username){
+        return inviteService.declineInvitation(id,username);
     }
 }
