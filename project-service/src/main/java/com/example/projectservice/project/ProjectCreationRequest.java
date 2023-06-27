@@ -1,4 +1,4 @@
 package com.example.projectservice.project;
 
-public record ProjectCreationRequest(Integer owner, String title, String description, Boolean isPublic) {
+public record ProjectCreationRequest(String title, String description, Boolean isPublic) {
 }

@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
@@ -18,7 +18,7 @@ import static org.springframework.http.HttpMethod.GET;
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
-    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**"};
+    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**","/api/v1/users/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,6 +27,12 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(whiteListedRoutes).permitAll()
                         .requestMatchers(GET,"/api/v1/admin/**")
+                        .hasAnyAuthority(Role.Admin.name())
+                        .requestMatchers(POST,"/api/v1/admin/**")
+                        .hasAnyAuthority(Role.Admin.name())
+                        .requestMatchers(PUT,"/api/v1/admin/**")
+                        .hasAnyAuthority(Role.Admin.name())
+                        .requestMatchers(DELETE,"/api/v1/admin/**")
                         .hasAnyAuthority(Role.Admin.name())
                         .anyRequest().authenticated()
                 )

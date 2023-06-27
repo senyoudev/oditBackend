@@ -1,6 +1,5 @@
 server:
   port: 8083
-  address: 192.168.1.5
 
 spring:
   application:
@@ -12,14 +11,19 @@ spring:
           uri: lb://AUTH
           predicates:
             - Path=/api/v1/auth/**
-
+        - id: users
+          uri: lb://AUTH
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - AuthenticationFilter
 
         - id: project
           uri: lb://project
           predicates:
-            - Path=/api/v1/projects/**, /api/v1/projectmembers/**
+            - Path=/api/v1/projects/**, /api/v1/projectmembers/**, /api/v1/invitations/**,/api/v1/admin/Projects/**
           filters:
-            - TokenFilter
+            - AuthenticationFilter
 eureka:
   client:
     service-url:

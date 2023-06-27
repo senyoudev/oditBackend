@@ -1,6 +1,12 @@
 package com.example.projectservice.project;
 
+import com.example.projectservice.projectmember.ProjectMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
+    List<Project> findByUserId(Integer userId);
+
+    List<Project> findAll();
 }

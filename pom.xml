@@ -17,7 +17,6 @@
     <module>service-discovery</module>
     <module>auth</module>
     <module>project-service</module>
-    <module>room-service</module>
   </modules>
 
   <properties>

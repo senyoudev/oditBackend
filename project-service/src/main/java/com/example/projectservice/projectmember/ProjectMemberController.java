@@ -16,8 +16,8 @@ public class ProjectMemberController {
     private final ProjectMemberService projectMemberService;
 
     @GetMapping
-    public List<ProjectMember> getProjectMembers() {
-        return projectMemberService.getProjectMembers();
+    public List<ProjectMember> getProjectMembers(@RequestParam Integer projectId) {
+        return projectMemberService.getProjectMembers(projectId);
     }
 
     @GetMapping(value = "{id}")
@@ -26,17 +26,17 @@ public class ProjectMemberController {
     }
 
     @PostMapping
-    public void addUserToProject(@RequestBody ProjectMemberCreationRequest request){
-        projectMemberService.addUserToProject(request);
+    public ProjectMember addUserToProject(@RequestBody ProjectMemberCreationRequest request){
+        return projectMemberService.addUserToProject(request);
     }
 
     @PutMapping(value = "{id}")
-    public void updateProjectMember(@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
-        projectMemberService.updateProjectMember(id,request);
+    public ProjectMember updateProjectMember(@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
+        return projectMemberService.updateProjectMember(id,request);
     }
 
     @DeleteMapping(value = "{id}")
-    public void removeMemberFromProject(@PathVariable("id") Integer id){
-        projectMemberService.removeMemberFromProject(id);
+    public String removeMemberFromProject(@PathVariable("id") Integer id){
+        return projectMemberService.removeMemberFromProject(id);
     }
 }
