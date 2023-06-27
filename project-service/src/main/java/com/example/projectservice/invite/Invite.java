@@ -1,12 +1,15 @@
 package com.example.projectservice.invite;
 
 
+import com.example.projectservice.project.Project;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 
@@ -28,10 +31,18 @@ public class Invite {
             generator = "invite_id_sequence"
     )
     private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
+
     @Column(nullable = false)
-    private Integer projectId;
+    private String userEmail;
+
     @Column(nullable = false)
-    private Integer invitedId;
+    private Integer adminId;
+
+    @Column(nullable = false)
+    private Boolean isAccepted;
 
     @CreationTimestamp
     private Date creationDate;
