@@ -31,3 +31,10 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     fetch-registry: true
     register-with-eureka: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/**
+    enabled: true
+    persist-authorization: true
+  enable-spring-security: true

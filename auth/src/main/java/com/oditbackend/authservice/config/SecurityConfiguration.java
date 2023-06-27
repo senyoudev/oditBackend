@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,10 +16,10 @@ import static org.springframework.http.HttpMethod.*;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class SecurityConfiguration  {
 
     private final AuthenticationProvider authenticationProvider;
-    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**","/api/v1/users/**"};
+    public static final String[] whiteListedRoutes = new String[]{"/api/v1/auth/**","/api/v1/users/**","/swagger-ui/**","/bus/v3/api-docs/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,4 +41,9 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider);
         return http.build();
     }
+
+//    @Bean
+//    public void configure(WebSecurity web) {
+//        web.ignoring().requestMatchers("/swagger-ui/**", "/bus/v3/api-docs/**");
+//    }
 }

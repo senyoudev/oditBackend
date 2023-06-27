@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class TokenValidationResponse {
 
     private Integer userId;
+    private String username;
     private String message;
 }
