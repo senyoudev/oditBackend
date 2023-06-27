@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
     List<Project> findByUserId(Integer userId);
+
+    List<Project> findAll();
 }
