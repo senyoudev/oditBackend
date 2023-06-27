@@ -1,5 +1,6 @@
 package com.example.projectservice.project;
 
+import com.example.projectservice.projectmember.ProjectMember;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class ProjectController {
 
     @GetMapping
     public List<Project> getUserProjects(@RequestParam Integer userId) {
-        return projectService.getUserProject(userId);
+        return projectService.getUserProjects(userId);
     }
 
     @GetMapping(value = "{id}")

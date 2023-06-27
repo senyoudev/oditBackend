@@ -33,9 +33,8 @@ public class AuthController {
 
 
     @GetMapping("/validate")
-    public String validateToken(@RequestParam("token") String token) {
-        service.validateToken(token);
-        return "Token is valid";
+    public TokenValidationResponse validateToken(@RequestParam("token") String token) {
+        return new TokenValidationResponse(service.validateToken(token),"Token is valid");
     }
 
     @PostMapping("/refresh-token")

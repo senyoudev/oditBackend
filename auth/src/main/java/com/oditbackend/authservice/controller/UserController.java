@@ -1,9 +1,7 @@
 package com.oditbackend.authservice.controller;
 
 import com.oditbackend.authservice.Dto.*;
-import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.service.UserService;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +24,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/email")
-    public ResponseEntity<Object> updateEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody EmailUpdateRequest request){
+    public ResponseEntity<AuthenticationResponse> updateEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody EmailUpdateRequest request){
         return ResponseEntity.ok(service.updateEmail(authorization,request));
     }
 
