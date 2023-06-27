@@ -39,18 +39,33 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
+            String requestPath = request.getPath().value();
+
 
             // Get the token from the request
             String token = request.getHeaders().getFirst("Authorization").substring(7);
 
 
+
+
+
+            if (requestPath.startsWith("/api/v1/admin/")) {
+
+                if (!isTokenValidAsAdmin(token)) {
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+                    return response.writeWith(Mono.just(response.bufferFactory().wrap("Unauthorized access to admin resource".getBytes())));
+                }
+            }
             // Validate the token
             Integer userId = validateToken(token);
             if (userId != -1) {
                 URI uri = null;
                 try {
-                    //Todo check if we have many parameters
-                    uri = new URI(request.getURI()+"?userId="+userId);
+//                    uri = new URI(request.getURI()+"?userId="+userId);
+                    String existingUri = request.getURI().toString();
+                    String parameterSeparator = existingUri.contains("?") ? "&" : "?";
+                    uri = new URI(existingUri + parameterSeparator + "userId=" + userId);
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
@@ -73,6 +88,17 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         }catch (Exception e){
             log.info(e.getMessage());
             return -1;
+        }
+    }
+
+    public Boolean isTokenValidAsAdmin(String token){
+        try{
+            InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
+            Boolean res = template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate-admin?token="+token, Boolean.class);
+            return res;
+        }catch (Exception e){
+            log.info(e.getMessage());
+            return false;
         }
     }
 

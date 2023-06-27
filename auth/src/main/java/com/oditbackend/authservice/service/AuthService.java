@@ -100,6 +100,22 @@ public class AuthService {
         return user.getId();
     }
 
+    public boolean isTokenValidAsAdmin(String token) {
+        if (token != null) {
+            try {
+                jwtService.validateToken(token);
+                String email = jwtService.extractUsername(token);
+
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new IllegalStateException("User with email " + email + " does not exist"));
+
+                return user.getRole() == Role.Admin;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
     private void validateRegistrationRequest(RegisterRequest request) {
         if (StringUtils.isBlank(request.getFirstName()) ||
                 StringUtils.isBlank(request.getLastName()) ||

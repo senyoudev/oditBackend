@@ -74,4 +74,15 @@ public class ProjectService {
         projectRepository.delete(project);
         return "project deleted!";
     }
+
+    public List<Project> getProjects() {
+        List<Project> projects = projectRepository.findAll();
+
+        for(Project project: projects){
+            List<ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
+            project.setMembers(new HashSet<>(members));
+        }
+
+        return projects;
+    }
 }
