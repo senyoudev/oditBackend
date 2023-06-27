@@ -17,6 +17,7 @@ spring:
             - Path=/api/v1/users/**
           filters:
             - AuthenticationFilter
+
         - id: project
           uri: lb://project
           predicates:
