@@ -6,6 +6,6 @@ import { SendEmail } from './notification.controller'
 const router = Router();
 router.use(zipkin_config);
 
-router.post("/send-email",zipkin_config,SendEmail );
+router.post("/send-email",SendEmail );
 
 export default router;

@@ -1,29 +1,28 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-dotenv.config();
-import path from 'path';
-import router from './notification/notification.router'
+import router from "./notification/notification.router";
+import eurekaClient from "./eureka";
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-app.use(
-  cors({
-    origin: '*',
-    optionsSuccessStatus: 200,
-  })
-)
-.use(bodyParser.json({ limit: "30mb" }))
-.use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
-.use("/api/v1/notifications", router)
+app
+  .use(
+    cors({
+      origin: "*",
+      optionsSuccessStatus: 200,
+    })
+  )
+  .use(bodyParser.json({ limit: "30mb" }))
+  .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
+  .use("/api/v1/notifications", router);
 
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Upload Api Is running');
+app.get("/", (req: Request, res: Response) => {
+  res.send("Upload Api Is running");
 });
 
 app.listen(port, () => {
@@ -32,5 +31,17 @@ app.listen(port, () => {
   );
 });
 
+async function start() {
+  eurekaClient.logger.level("debug");
 
+  eurekaClient.start((error: any) => {
+    console.log(error || "notification service registered");
+  });
 
+  eurekaClient.on("deregistered", () => {
+    console.log("after deregistered");
+    process.exit();
+  });
+}
+
+start().catch(console.error);
