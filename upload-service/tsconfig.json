@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "baseUrl": "./",
+    "outDir": "build",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "resolveJsonModule": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "useUnknownInCatchVariables": false
+  },
+  "include": ["src/server.ts"]
+}
