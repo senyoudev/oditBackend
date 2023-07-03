@@ -29,6 +29,12 @@ spring:
             - Path=/api/v1/files/**
           filters:
             - AuthenticationFilter
+        - id: notification
+          uri: lb://notification
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - AuthenticationFilter
 eureka:
   client:
     service-url:
