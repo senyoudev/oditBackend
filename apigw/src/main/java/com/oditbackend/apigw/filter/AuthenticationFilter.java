@@ -41,13 +41,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             ServerHttpResponse response = exchange.getResponse();
             String requestPath = request.getPath().value();
 
-
             // Get the token from the request
             String token = request.getHeaders().getFirst("Authorization").substring(7);
-
-
-
-
 
             if (requestPath.startsWith("/api/v1/admin/")) {
 
