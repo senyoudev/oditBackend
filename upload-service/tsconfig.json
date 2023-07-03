@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false
   },
-  "include": ["src/server.ts"]
+  "include": ["src/index.ts"]
 }

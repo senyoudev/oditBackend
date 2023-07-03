@@ -17,11 +17,16 @@ spring:
             - Path=/api/v1/users/**
           filters:
             - AuthenticationFilter
-
         - id: project
           uri: lb://project
           predicates:
             - Path=/api/v1/projects/**, /api/v1/projectmembers/**, /api/v1/invitations/**,/api/v1/admin/Projects/**
+          filters:
+            - AuthenticationFilter
+        - id: upload
+          uri: lb://upload
+          predicates:
+            - Path=/api/v1/files/**
           filters:
             - AuthenticationFilter
 eureka:
