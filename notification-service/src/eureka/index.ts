@@ -26,7 +26,7 @@ const eurekaClient = new Eureka({
     host: eurekaHost,
     port: eurekaPort as number,
     servicePath: '/eureka/apps/',
-    maxRetries: 10,
+    maxRetries: 1,
     requestRetryDelay: 2000,
   },
 });
