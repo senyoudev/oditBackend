@@ -17,6 +17,8 @@
     <module>service-discovery</module>
     <module>auth</module>
     <module>project-service</module>
+    <module>amqp</module>
+    <module>helpers</module>
   </modules>
 
   <properties>

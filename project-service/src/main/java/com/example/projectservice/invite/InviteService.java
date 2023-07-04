@@ -1,25 +1,34 @@
 package com.example.projectservice.invite;
 
+import com.example.amqp.RabbitMQMessageProducer;
+import com.example.helpers.notifications.NotificationRequest;
+import com.example.helpers.notifications.NotificationType;
 import com.example.projectservice.project.Project;
 import com.example.projectservice.project.ProjectNotFoundException;
 import com.example.projectservice.project.ProjectRepository;
-import com.example.projectservice.project.ProjectService;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class InviteService {
 
     private final InviteRepository inviteRepository;
-    private final ProjectService projectService;
     private final ProjectRepository projectRepository;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
+
+    @Value("${spring.rabbitmq.template.exchange}")
+    private String exchange;
+
+    @Value("${spring.rabbitmq.template.routing-key}")
+    private String routingKey;
+
+    public InviteService(InviteRepository inviteRepository, ProjectRepository projectRepository, RabbitMQMessageProducer rabbitMQMessageProducer) {
+        this.inviteRepository = inviteRepository;
+        this.projectRepository = projectRepository;
+        this.rabbitMQMessageProducer = rabbitMQMessageProducer;
+    }
 
 
     public Invite getInvitationById(Integer id){
@@ -41,17 +50,27 @@ public class InviteService {
         if(!request.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
-            Invite invite = Invite.builder()
+        Invite invite = Invite.builder()
                     .project(project)
                     .adminId(userId)
                     .userEmail(request.getUserEmail())
                     .isAccepted(false)
                     .build();
 
-            inviteRepository.saveAndFlush(invite);
-            //here we should send a notification to the invited user
-            return invite;
+        inviteRepository.saveAndFlush(invite);
 
+        //send a notification to the invited user
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invite.getUserEmail(),
+                username,
+                NotificationType.INVITATION
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                exchange,
+                routingKey
+        );
+        return invite;
     }
 
     public void acceptInvitation(Integer invitationId,String username) {
@@ -61,7 +80,18 @@ public class InviteService {
        }
         invitation.setIsAccepted(true);
         inviteRepository.save(invitation);
-        //here we send a notif to the admin
+
+        //send an accept notification to the admin
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invitation.getUserEmail(),
+                username,
+                NotificationType.ACCEPT_NOTIF
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                exchange,
+                routingKey
+        );
     }
 
     public String declineInvitation(Integer invitationId,String username) {
@@ -70,7 +100,19 @@ public class InviteService {
             throw new UnauthorizedException("You Can Accept Only Your Invitations");
         }
         inviteRepository.delete(invitation);
-        //here we send a notif to the admin
+
+        //send an accept notification to the admin
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invitation.getUserEmail(),
+                username,
+                NotificationType.DENY_NOTIF
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                exchange,
+                routingKey
+        );
+
         return "Deleted Successfully";
     }
 

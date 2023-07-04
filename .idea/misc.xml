@@ -9,6 +9,8 @@
         <option value="$PROJECT_DIR$/project-module/pom.xml" />
         <option value="$PROJECT_DIR$/zipkin/pom.xml" />
         <option value="$PROJECT_DIR$/room-service/pom.xml" />
+        <option value="$PROJECT_DIR$/amqp/pom.xml" />
+        <option value="$PROJECT_DIR$/helpers/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
