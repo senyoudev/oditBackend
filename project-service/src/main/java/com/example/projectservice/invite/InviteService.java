@@ -2,6 +2,7 @@ package com.example.projectservice.invite;
 
 import com.example.amqp.RabbitMQMessageProducer;
 import com.example.helpers.notifications.NotificationRequest;
+import com.example.helpers.notifications.NotificationType;
 import com.example.projectservice.project.Project;
 import com.example.projectservice.project.ProjectNotFoundException;
 import com.example.projectservice.project.ProjectRepository;
@@ -49,27 +50,27 @@ public class InviteService {
         if(!request.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
-            Invite invite = Invite.builder()
+        Invite invite = Invite.builder()
                     .project(project)
                     .adminId(userId)
                     .userEmail(request.getUserEmail())
                     .isAccepted(false)
                     .build();
 
-            inviteRepository.saveAndFlush(invite);
+        inviteRepository.saveAndFlush(invite);
 
-            //send a notification to the invited user
-            NotificationRequest notificationRequest = new NotificationRequest(
-                    invite.getUserEmail(),
-                    username
-            );
-            rabbitMQMessageProducer.publish(
-                    notificationRequest,
-                    exchange,
-                    routingKey
-            );
-            return invite;
-
+        //send a notification to the invited user
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invite.getUserEmail(),
+                username,
+                NotificationType.INVITATION
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                exchange,
+                routingKey
+        );
+        return invite;
     }
 
     public void acceptInvitation(Integer invitationId,String username) {
@@ -83,7 +84,8 @@ public class InviteService {
         //send an accept notification to the admin
         NotificationRequest notificationRequest = new NotificationRequest(
                 invitation.getUserEmail(),
-                username
+                username,
+                NotificationType.ACCEPT_NOTIF
         );
         rabbitMQMessageProducer.publish(
                 notificationRequest,
@@ -102,7 +104,8 @@ public class InviteService {
         //send an accept notification to the admin
         NotificationRequest notificationRequest = new NotificationRequest(
                 invitation.getUserEmail(),
-                username
+                username,
+                NotificationType.DENY_NOTIF
         );
         rabbitMQMessageProducer.publish(
                 notificationRequest,

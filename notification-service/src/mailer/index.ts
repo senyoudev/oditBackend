@@ -12,13 +12,8 @@ const transporter = nodemailer.createTransport({
     pass,
   },
 });
-const send = async (
-  from: string,
-  to: string,
-  subject: string,
-  text: string
-) => {
-  await transporter.sendMail({ from, to, subject, text });
+const send = async (from: string, to: string) => {
+  await transporter.sendMail({ from, to, subject: "", text: "text" });
 };
 
 export { send };

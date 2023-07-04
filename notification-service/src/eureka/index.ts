@@ -1,34 +1,46 @@
-import { Eureka } from 'eureka-js-client';
+import { Eureka } from "eureka-js-client";
 
 const port = process.env.PORT || 4000;
 const eurekaPort = process.env.EUREKA_PORT || 8761;
-const hostName = process.env.HOSTNAME || 'localhost';
+const hostName = process.env.HOSTNAME || "localhost";
 const eurekaHost =
-  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || '127.0.0.1';
-const ipAddr = '127.0.0.1';
+  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "127.0.0.1";
+const ipAddr = "127.0.0.1";
 
-const eurekaClient = new Eureka({
+const eurekaClient: any = new Eureka({
   instance: {
-    app: 'Notification',
+    app: "Notification",
     hostName: hostName,
     ipAddr: ipAddr,
     port: {
       $: port as number,
-      '@enabled': true,
+      "@enabled": true,
     },
-    vipAddress: 'Notification',
+    vipAddress: "Notification",
     dataCenterInfo: {
-      '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
-      name: 'MyOwn',
+      "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+      name: "MyOwn",
     },
   },
   eureka: {
     host: eurekaHost,
     port: eurekaPort as number,
-    servicePath: '/eureka/apps/',
+    servicePath: "/eureka/apps/",
     maxRetries: 1,
-    requestRetryDelay: 2000,
   },
 });
 
-export default eurekaClient as any;
+async function startEureka() {
+  eurekaClient.logger.level("debug");
+
+  eurekaClient.start((error: any) => {
+    console.log(error || "notification service registered");
+  });
+
+  eurekaClient.on("deregistered", () => {
+    console.log("after deregistered");
+    process.exit();
+  });
+}
+
+export { startEureka };
