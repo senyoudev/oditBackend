@@ -5,10 +5,8 @@ import com.example.projectservice.projectmember.ProjectMemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -18,7 +16,7 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
 
     public List<Project> getUserProjects(Integer userId){
-        List<Project> projects = projectRepository.findByUserId(userId);
+        List<Project> projects = projectRepository.findByAdminId(userId);
 
         for(Project project: projects){
             List<ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
@@ -37,9 +35,10 @@ public class ProjectService {
 
         return project;
     }
-    public Project createProject(Integer userId,ProjectCreationRequest request) {
+    public Project createProject(Integer userId,String username,ProjectCreationRequest request) {
         Project project = Project.builder()
-                .userId(userId)
+                .adminId(userId)
+                .adminEmail(username)
                 .title(request.title())
                 .description(request.description())
                 .isPublic(request.isPublic())

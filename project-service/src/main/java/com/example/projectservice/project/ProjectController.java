@@ -1,6 +1,5 @@
 package com.example.projectservice.project;
 
-import com.example.projectservice.projectmember.ProjectMember;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +23,8 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@RequestParam Integer userId, @RequestBody ProjectCreationRequest projectCreationRequest){
-        return projectService.createProject(userId,projectCreationRequest);
+    public Project createProject(@RequestParam Integer userId,@RequestParam String username,@RequestBody ProjectCreationRequest projectCreationRequest){
+        return projectService.createProject(userId,username,projectCreationRequest);
     }
 
     @PutMapping(value = "{id}")

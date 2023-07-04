@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 
@@ -37,9 +35,6 @@ public class Invite {
 
     @Column(nullable = false)
     private String userEmail;
-
-    @Column(nullable = false)
-    private Integer adminId;
 
     @Column(nullable = false)
     private Boolean isAccepted;
