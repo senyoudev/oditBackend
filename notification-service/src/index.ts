@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import router from "./notification/notification.router";
 import eurekaClient from "./eureka";
+import { startConsumer } from './rabbitMq/notificationConsumer'
 
 dotenv.config();
 
@@ -43,5 +44,7 @@ async function start() {
     process.exit();
   });
 }
+
+
 
 start().catch(console.error);
