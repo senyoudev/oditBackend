@@ -22,6 +22,8 @@ const startConsumer = async () => {
 
     console.log("Waiting for messages...");
 
+   
+
     // Consume messages from the queue
     channel.consume(
       queue,
@@ -33,13 +35,15 @@ const startConsumer = async () => {
             type: string;
           };
 
-          try {
-            // Send email
-            await send(from, to);
-            console.log(`Email sent to ${to}`);
-          } catch (error) {
-            console.error("Error sending email:", error);
-          }
+          console.log("sending email")
+
+          // try {
+          //   // Send email
+          //   await send(from, to);
+          //   console.log(`Email sent to ${to}`);
+          // } catch (error) {
+          //   console.error("Error sending email:", error);
+          // }
 
           // Acknowledge the message
           channel.ack(msg);
