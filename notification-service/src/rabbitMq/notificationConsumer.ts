@@ -37,13 +37,13 @@ const startConsumer = async () => {
 
           console.log("sending email")
 
-          // try {
-          //   // Send email
-          //   await send(from, to);
-          //   console.log(`Email sent to ${to}`);
-          // } catch (error) {
-          //   console.error("Error sending email:", error);
-          // }
+          try {
+            // Send email
+            await send(from, to);
+            console.log(`Email sent to ${to}`);
+          } catch (error) {
+            console.error("Error sending email:", error);
+          }
 
           // Acknowledge the message
           channel.ack(msg);

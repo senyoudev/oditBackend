@@ -18,7 +18,7 @@ import java.util.*;
 @Table(
         name = "project",
         uniqueConstraints=
-        @UniqueConstraint(columnNames={"userId", "title"})
+        @UniqueConstraint(columnNames={"adminId", "title"})
 )
 public class Project {
 
@@ -33,7 +33,9 @@ public class Project {
     )
     private Integer id;
     @Column(nullable = false)
-    private Integer userId;
+    private Integer adminId;
+    @Column(nullable = false)
+    private String adminEmail;
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)

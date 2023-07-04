@@ -8,36 +8,23 @@ import com.example.projectservice.project.ProjectNotFoundException;
 import com.example.projectservice.project.ProjectRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class InviteService {
 
     private final InviteRepository inviteRepository;
     private final ProjectRepository projectRepository;
     private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
-//    @Value("${spring.rabbitmq.exchange}")
-//    private String exchange;
-//
-//    @Value("${spring.rabbitmq.routing-key}")
-//    private String routingKey;
 
-    public InviteService(InviteRepository inviteRepository, ProjectRepository projectRepository, RabbitMQMessageProducer rabbitMQMessageProducer) {
-        this.inviteRepository = inviteRepository;
-        this.projectRepository = projectRepository;
-        this.rabbitMQMessageProducer = rabbitMQMessageProducer;
-    }
-
-
-
-    public Invite getInvitationById(Integer id){
+    public Invite getInvitationById(Integer id) {
         Invite invite = inviteRepository.findById(id)
-                .orElseThrow(()->new IllegalStateException("invitation with id {id} does not exist"));
+                .orElseThrow(() -> new IllegalStateException("invitation with id {id} does not exist"));
         return invite;
     }
 
@@ -45,30 +32,29 @@ public class InviteService {
         return inviteRepository.findByUserEmail(userEmail);
     }
 
-    public Invite sendInvitation(Integer userId,InvitationCreationRequest request,String username) {
+    public Invite sendInvitation(Integer userId, InvitationCreationRequest request, String username) {
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
 
-        if(userId != project.getUserId() ) {
+        if (userId != project.getAdminId()) {
             throw new UnauthorizedException("Only project owners can send invitations.");
         }
-        if(request.getUserEmail().equals(username)) {
+        if (request.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
         Invite invite = Invite.builder()
-                    .project(project)
-                    .adminId(userId)
-                    .userEmail(request.getUserEmail())
-                    .isAccepted(false)
-                    .build();
+                .project(project)
+                .userEmail(request.getUserEmail())
+                .isAccepted(false)
+                .build();
 
         inviteRepository.saveAndFlush(invite);
 
         //send a notification to the invited user
         NotificationRequest notificationRequest = new NotificationRequest(
-                invite.getUserEmail(),
                 username,
+                invite.getUserEmail(),
                 NotificationType.INVITATION
         );
         rabbitMQMessageProducer.publish(
@@ -79,50 +65,48 @@ public class InviteService {
         return invite;
     }
 
-    public void acceptInvitation(Integer invitationId,String username) {
+    public void acceptInvitation(Integer invitationId, String username) {
         Invite invitation = getInvitationById(invitationId);
-        if(!invitation.getUserEmail().equals(username)) {
+        if (!invitation.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You Can Accept Only Your Invitations");
-       }
+        }
         invitation.setIsAccepted(true);
         inviteRepository.save(invitation);
 
         //send an accept notification to the admin
-//        NotificationRequest notificationRequest = new NotificationRequest(
-//                invitation.getUserEmail(),
-//                username,
-//                NotificationType.ACCEPT_NOTIF
-//        );
-//        rabbitMQMessageProducer.publish(
-//                notificationRequest,
-//                exchange,
-//                routingKey
-//        );
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invitation.getUserEmail(),
+                invitation.getProject().getAdminEmail(),
+                NotificationType.ACCEPT_NOTIF
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
     }
 
-    public String declineInvitation(Integer invitationId,String username) {
+    public String declineInvitation(Integer invitationId, String username) {
         Invite invitation = getInvitationById(invitationId);
-        if(!invitation.getUserEmail().equals(username)) {
-            throw new UnauthorizedException("You Can Accept Only Your Invitations");
+        if (!invitation.getUserEmail().equals(username)) {
+            throw new UnauthorizedException("You Can Remove Only Your Invitations");
         }
         inviteRepository.delete(invitation);
 
         //send an accept notification to the admin
-//        NotificationRequest notificationRequest = new NotificationRequest(
-//                invitation.getUserEmail(),
-//                username,
-//                NotificationType.DENY_NOTIF
-//        );
-//        rabbitMQMessageProducer.publish(
-//                notificationRequest,
-//                exchange,
-//                routingKey
-//        );
+        NotificationRequest notificationRequest = new NotificationRequest(
+                invitation.getUserEmail(),
+                invitation.getProject().getAdminEmail(),
+                NotificationType.ACCEPT_NOTIF
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
 
         return "Deleted Successfully";
     }
-
-
 
 
 }
