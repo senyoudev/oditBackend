@@ -6,29 +6,33 @@ import com.example.helpers.notifications.NotificationType;
 import com.example.projectservice.project.Project;
 import com.example.projectservice.project.ProjectNotFoundException;
 import com.example.projectservice.project.ProjectRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class InviteService {
 
     private final InviteRepository inviteRepository;
     private final ProjectRepository projectRepository;
     private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
-    @Value("${spring.rabbitmq.template.exchange}")
-    private String exchange;
-
-    @Value("${spring.rabbitmq.template.routing-key}")
-    private String routingKey;
+//    @Value("${spring.rabbitmq.exchange}")
+//    private String exchange;
+//
+//    @Value("${spring.rabbitmq.routing-key}")
+//    private String routingKey;
 
     public InviteService(InviteRepository inviteRepository, ProjectRepository projectRepository, RabbitMQMessageProducer rabbitMQMessageProducer) {
         this.inviteRepository = inviteRepository;
         this.projectRepository = projectRepository;
         this.rabbitMQMessageProducer = rabbitMQMessageProducer;
     }
+
 
 
     public Invite getInvitationById(Integer id){
@@ -42,12 +46,14 @@ public class InviteService {
     }
 
     public Invite sendInvitation(Integer userId,InvitationCreationRequest request,String username) {
+
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+
         if(userId != project.getUserId() ) {
             throw new UnauthorizedException("Only project owners can send invitations.");
         }
-        if(!request.getUserEmail().equals(username)) {
+        if(request.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
         Invite invite = Invite.builder()
@@ -67,8 +73,8 @@ public class InviteService {
         );
         rabbitMQMessageProducer.publish(
                 notificationRequest,
-                exchange,
-                routingKey
+                "internal.exchange",
+                "internal.notification.routing-key"
         );
         return invite;
     }
@@ -82,16 +88,16 @@ public class InviteService {
         inviteRepository.save(invitation);
 
         //send an accept notification to the admin
-        NotificationRequest notificationRequest = new NotificationRequest(
-                invitation.getUserEmail(),
-                username,
-                NotificationType.ACCEPT_NOTIF
-        );
-        rabbitMQMessageProducer.publish(
-                notificationRequest,
-                exchange,
-                routingKey
-        );
+//        NotificationRequest notificationRequest = new NotificationRequest(
+//                invitation.getUserEmail(),
+//                username,
+//                NotificationType.ACCEPT_NOTIF
+//        );
+//        rabbitMQMessageProducer.publish(
+//                notificationRequest,
+//                exchange,
+//                routingKey
+//        );
     }
 
     public String declineInvitation(Integer invitationId,String username) {
@@ -102,16 +108,16 @@ public class InviteService {
         inviteRepository.delete(invitation);
 
         //send an accept notification to the admin
-        NotificationRequest notificationRequest = new NotificationRequest(
-                invitation.getUserEmail(),
-                username,
-                NotificationType.DENY_NOTIF
-        );
-        rabbitMQMessageProducer.publish(
-                notificationRequest,
-                exchange,
-                routingKey
-        );
+//        NotificationRequest notificationRequest = new NotificationRequest(
+//                invitation.getUserEmail(),
+//                username,
+//                NotificationType.DENY_NOTIF
+//        );
+//        rabbitMQMessageProducer.publish(
+//                notificationRequest,
+//                exchange,
+//                routingKey
+//        );
 
         return "Deleted Successfully";
     }

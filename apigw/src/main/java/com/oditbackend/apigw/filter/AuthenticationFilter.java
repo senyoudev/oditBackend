@@ -84,7 +84,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             return res;
         }catch (Exception e){
             log.info(e.getMessage());
-            return null;
+            throw new RuntimeException("Failed to validate token", e);
         }
     }
 
