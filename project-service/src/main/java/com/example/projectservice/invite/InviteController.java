@@ -14,8 +14,8 @@ public class InviteController {
     private final InviteService inviteService;
 
     @GetMapping
-    public List<Invite> getUserInvitations(@RequestParam String email) {
-        return inviteService.getInvitationsByUserEmail(email);
+    public List<Invite> getUserInvitations(@RequestParam String username) {
+        return inviteService.getInvitationsByUserEmail(username);
     }
 
     @GetMapping(value = "{id}")
@@ -24,8 +24,8 @@ public class InviteController {
     }
 
     @PostMapping
-    public Invite sendInvitation(@RequestParam Integer userId,@RequestBody InvitationCreationRequest request,@RequestParam String username){
-        return inviteService.sendInvitation(userId,request,username);
+    public void sendInvitation(@RequestParam Integer userId,@RequestBody InvitationCreationRequest request,@RequestParam String username){
+        inviteService.sendInvitation(userId,request,username);
     }
 
     @PutMapping("/{id}/accept")

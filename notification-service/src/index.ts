@@ -3,8 +3,8 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 import router from "./notification/notification.router";
-import eurekaClient from "./eureka";
-import { startConsumer } from './rabbitMq/notificationConsumer'
+import { startEureka } from "./eureka";
+import { startConsumer } from "./rabbitMq/notificationConsumer";
 
 dotenv.config();
 
@@ -26,25 +26,10 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Upload Api Is running");
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(
     `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
   );
+  await startEureka();
+  await startConsumer();
 });
-
-async function start() {
-  eurekaClient.logger.level("debug");
-
-  eurekaClient.start((error: any) => {
-    console.log(error || "notification service registered");
-  });
-
-  eurekaClient.on("deregistered", () => {
-    console.log("after deregistered");
-    process.exit();
-  });
-}
-
-
-
-start().catch(console.error);
