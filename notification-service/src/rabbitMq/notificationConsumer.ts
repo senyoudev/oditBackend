@@ -22,6 +22,8 @@ const startConsumer = async () => {
 
     console.log("Waiting for messages...");
 
+   
+
     // Consume messages from the queue
     channel.consume(
       queue,
