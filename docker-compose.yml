@@ -45,6 +45,15 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  rabbitmq:
+    image: rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - spring
+
 networks:
   postgres:
     driver: bridge

@@ -8,20 +8,25 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="apigw" />
-        <module name="room-service" />
+        <module name="helpers" />
         <module name="auth" />
+        <module name="amqp" />
+        <module name="room-service" />
         <module name="project-service" />
         <module name="service-discovery" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="apigw (1)" target="17" />
+      <module name="apigw (2)" target="17" />
       <module name="auth-service" target="17" />
       <module name="discovery-server" target="17" />
-      <module name="room-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="amqp" options="" />
+      <module name="helpers" options="" />
       <module name="room-service" options="" />
     </option>
   </component>
