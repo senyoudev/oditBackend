@@ -1,11 +1,11 @@
 server:
-  port: 8090
+  port: 8095
 spring:
   application:
     name: project
   datasource:
-    password: password
-    url: jdbc:postgresql://localhost:5433/projects
+    password: yassine1
+    url: jdbc:postgresql://localhost:5433/project
     username: postgres
   jpa:
     hibernate:
@@ -15,6 +15,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  rabbitmq:
+    addresses: localhost:5672
+    template:
+      exchange: internal.exchange
+      routing-key: internal.notification.routing-key
 
 Eureka:
   client:
@@ -22,7 +27,6 @@ Eureka:
       defaultZone: http://localhost:8761/eureka
     fetch-registry: true
     register-with-eureka: true
-
 springdoc:
   swagger-ui:
     enabled: true
