@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(
         scanBasePackages = {
                 "com.example.projectservice",
-                "com.example.amqp",
+                "com.example.amqp"
         }
 )
 public class ProjectServiceApplication {

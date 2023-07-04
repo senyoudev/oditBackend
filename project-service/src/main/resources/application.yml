@@ -4,8 +4,8 @@ spring:
   application:
     name: project
   datasource:
-    password: yassine1
-    url: jdbc:postgresql://localhost:5433/project
+    password: password
+    url: jdbc:postgresql://localhost:5433/projects
     username: postgres
   jpa:
     hibernate:
@@ -16,10 +16,12 @@ spring:
         format_sql: true
     show-sql: true
   rabbitmq:
-    addresses: localhost:5672
-    template:
-      exchange: internal.exchange
-      routing-key: internal.notification.routing-key
+    exchanges:
+      internal: internal.exchange
+    queues:
+      notification: notification.queue
+    routing-keys:
+      internal-notification: internal.notification.routing-key
 
 Eureka:
   client:
