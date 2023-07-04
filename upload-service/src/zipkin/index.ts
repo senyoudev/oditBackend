@@ -1,8 +1,13 @@
-import { Tracer, ExplicitContext, BatchRecorder, jsonEncoder } from "zipkin";
-import {HttpLogger} from "zipkin-transport-http";
-import {expressMiddleware} from "zipkin-instrumentation-express";
+//@ts-ignore
+import { Tracer, ExplicitContext, BatchRecorder, jsonEncoder } from 'zipkin';
+//@ts-ignore
+const { HttpLogger } = require('zipkin-transport-http');
+//@ts-ignore
+import { expressMiddleware } from 'zipkin-instrumentation-express';
 
-const ZIPKIN_ENDPOINT = process.env.ZIPKIN_ENDPOINT || "http://localhost:9411/zipkin";
+
+const ZIPKIN_ENDPOINT =
+  process.env.ZIPKIN_ENDPOINT || 'http://localhost:9411/zipkin';
 
 // Get ourselves a zipkin tracer
 const tracer = new Tracer({
@@ -13,7 +18,7 @@ const tracer = new Tracer({
       jsonEncoder: jsonEncoder.JSON_V2,
     }),
   }),
-  localServiceName: "upload",
+  localServiceName: 'upload',
 });
 
 export default expressMiddleware({ tracer });
