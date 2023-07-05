@@ -1,4 +1,4 @@
-package com.example.projectservice.invite;
+package com.example.helpers.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

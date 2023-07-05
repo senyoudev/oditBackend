@@ -36,9 +36,6 @@ public class Invite {
     @Column(nullable = false)
     private String userEmail;
 
-    @Column(nullable = false)
-    private Boolean isAccepted;
-
     @CreationTimestamp
     private Date creationDate;
 }

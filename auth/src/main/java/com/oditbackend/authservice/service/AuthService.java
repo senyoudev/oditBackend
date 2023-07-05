@@ -1,35 +1,36 @@
 package com.oditbackend.authservice.service;
 
 
-import com.oditbackend.authservice.Dto.TokenValidationResponse;
-import com.oditbackend.authservice.entity.Token;
-import com.oditbackend.authservice.entity.TokenType;
+import com.example.helpers.exceptions.BadRequestException;
+import com.example.helpers.exceptions.ConflictException;
+import com.example.helpers.exceptions.NotFoundException;
+import com.example.helpers.notifications.NotificationRequest;
+import com.example.helpers.notifications.NotificationType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oditbackend.authservice.Dto.AuthenticationRequest;
 import com.oditbackend.authservice.Dto.AuthenticationResponse;
 import com.oditbackend.authservice.Dto.RegisterRequest;
+import com.oditbackend.authservice.Dto.TokenValidationResponse;
 import com.oditbackend.authservice.entity.Role;
+import com.oditbackend.authservice.entity.Token;
+import com.oditbackend.authservice.entity.TokenType;
 import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.repository.TokenRepository;
 import com.oditbackend.authservice.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.amqp.RabbitMQMessageProducer;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 @Service
@@ -42,13 +43,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
 
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return AuthenticationResponse.builder().accessToken("").message("Email already exists.").build();
+            throw new ConflictException("Email already exists.");
         }
-        validateRegistrationRequest(request);
+        validateRequest(request);
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -62,6 +64,18 @@ public class AuthService {
 
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+
+        //send a notification to the invited user
+        NotificationRequest notificationRequest = new NotificationRequest(
+                "odit.contact@gmail.com",
+                request.getEmail(),
+                NotificationType.REGISTRATION_NOTIF
+        );
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -70,7 +84,7 @@ public class AuthService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-
+        validateRequest(request);
         authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
@@ -79,7 +93,7 @@ public class AuthService {
             );
 
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(()->new NotFoundException("user not found"));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
@@ -97,7 +111,7 @@ public class AuthService {
         String email = jwtService.extractUsername(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()->new IllegalStateException("user with email {email} does not exist"));
+                .orElseThrow(()->new NotFoundException("user not found"));
         TokenValidationResponse tokenValidationResponse = TokenValidationResponse
                 .builder()
                 .userId(user.getId())
@@ -114,7 +128,7 @@ public class AuthService {
                 String email = jwtService.extractUsername(token);
 
                 User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new IllegalStateException("User with email " + email + " does not exist"));
+                        .orElseThrow(()->new NotFoundException("user not found"));
 
                 return user.getRole() == Role.Admin;
             } catch (Exception e) {
@@ -123,19 +137,30 @@ public class AuthService {
         }
         return false;
     }
-    private void validateRegistrationRequest(RegisterRequest request) {
+    private void validateRequest(RegisterRequest request) {
         if (StringUtils.isBlank(request.getFirstName()) ||
                 StringUtils.isBlank(request.getLastName()) ||
                 StringUtils.isBlank(request.getEmail()) ||
                 StringUtils.isBlank(request.getPassword())) {
-            throw new IllegalArgumentException("All fields are required.");
+            throw new BadRequestException("All fields are required.");
         }
 
         if (!isValidEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Invalid email format.");
+            throw new BadRequestException("Invalid email format.");
         }
 
     }
+    private void validateRequest(AuthenticationRequest request) {
+        if (StringUtils.isBlank(request.getEmail()) || StringUtils.isBlank(request.getPassword())) {
+            throw new BadRequestException("All fields are required.");
+        }
+
+        if (!isValidEmail(request.getEmail())) {
+            throw new BadRequestException("Invalid email format.");
+        }
+
+    }
+
 
     private boolean isValidEmail(String email) {
         return email.matches("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$");

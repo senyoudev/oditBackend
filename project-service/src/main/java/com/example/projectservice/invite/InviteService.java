@@ -1,11 +1,15 @@
 package com.example.projectservice.invite;
 
 import com.example.amqp.RabbitMQMessageProducer;
+import com.example.helpers.exceptions.BadRequestException;
+import com.example.helpers.exceptions.NotFoundException;
+import com.example.helpers.exceptions.UnauthorizedException;
 import com.example.helpers.notifications.NotificationRequest;
 import com.example.helpers.notifications.NotificationType;
 import com.example.projectservice.project.Project;
-import com.example.projectservice.project.ProjectNotFoundException;
 import com.example.projectservice.project.ProjectRepository;
+import com.example.projectservice.projectmember.ProjectMemberCreationRequest;
+import com.example.projectservice.projectmember.ProjectMemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +24,12 @@ public class InviteService {
     private final InviteRepository inviteRepository;
     private final ProjectRepository projectRepository;
     private final RabbitMQMessageProducer rabbitMQMessageProducer;
+    private final ProjectMemberService projectMemberService;
 
 
     public Invite getInvitationById(Integer id) {
         Invite invite = inviteRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("invitation with id {id} does not exist"));
+                .orElseThrow(() -> new IllegalStateException("invitation with id "+id+" does not exist"));
         return invite;
     }
 
@@ -35,7 +40,7 @@ public class InviteService {
     public Invite sendInvitation(Integer userId, InvitationCreationRequest request, String username) {
 
         Project project = projectRepository.findById(request.getProjectId())
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+                .orElseThrow(() -> new NotFoundException("Project not found"));
 
         if (userId != project.getAdminId()) {
             throw new UnauthorizedException("Only project owners can send invitations.");
@@ -43,13 +48,17 @@ public class InviteService {
         if (request.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
-        Invite invite = Invite.builder()
-                .project(project)
-                .userEmail(request.getUserEmail())
-                .isAccepted(false)
-                .build();
+        Invite invite = null;
+        try {
+            invite = Invite.builder()
+                    .project(project)
+                    .userEmail(request.getUserEmail())
+                    .build();
 
-        inviteRepository.saveAndFlush(invite);
+            inviteRepository.saveAndFlush(invite);
+        } catch (Exception e) {
+            throw new BadRequestException("Email is required");
+        }
 
         //send a notification to the invited user
         NotificationRequest notificationRequest = new NotificationRequest(
@@ -65,13 +74,15 @@ public class InviteService {
         return invite;
     }
 
-    public void acceptInvitation(Integer invitationId, String username) {
+    public void acceptInvitation(Integer invitationId, Integer userId, String username) {
         Invite invitation = getInvitationById(invitationId);
         if (!invitation.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You Can Accept Only Your Invitations");
         }
-        invitation.setIsAccepted(true);
-        inviteRepository.save(invitation);
+
+        //Add user to project
+        ProjectMemberCreationRequest request = new ProjectMemberCreationRequest(invitation.getProject().getId(), userId);
+        projectMemberService.addUserToProject(request);
 
         //send an accept notification to the admin
         NotificationRequest notificationRequest = new NotificationRequest(
@@ -79,6 +90,11 @@ public class InviteService {
                 invitation.getProject().getAdminEmail(),
                 NotificationType.ACCEPT_NOTIF
         );
+
+        //Todo remove accepted from invitation model
+        //Delete Invitation
+        inviteRepository.delete(invitation);
+
         rabbitMQMessageProducer.publish(
                 notificationRequest,
                 "internal.exchange",
@@ -106,6 +122,7 @@ public class InviteService {
         );
 
         return "Deleted Successfully";
+
     }
 
 

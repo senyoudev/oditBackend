@@ -29,8 +29,8 @@ public class InviteController {
     }
 
     @PutMapping("/{id}/accept")
-    public ResponseEntity<Void> acceptInvitation(@PathVariable("id") Integer invitationId,@RequestParam String username) {
-        inviteService.acceptInvitation(invitationId,username);
+    public ResponseEntity<Void> acceptInvitation(@PathVariable("id") Integer invitationId,@RequestParam String username,@RequestParam Integer userId) {
+        inviteService.acceptInvitation(invitationId,userId,username);
         return ResponseEntity.ok().build();
     }
 
