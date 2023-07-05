@@ -1,0 +1,4 @@
+{
+  "subject": "Invitation Email",
+  "content": "<h1>Invitation Email</h1><p>Dear {recipient},</p><p>We are pleased to invite you to join a project in Odit, the leading task management app. This project offers exciting opportunities for collaboration and productivity.</p><p>To accept the invitation and join the project, please click the link below:</p><a href=\"{invitationLink}\">Accept Invitation</a><p>By joining this project, you will have access to its tasks, milestones, and team members. Your contribution and expertise will be highly valued.</p><p>If you have any questions or need further assistance, please feel free to reach out to us. We look forward to having you as part of the team!</p><p>Best regards,</p><p>The Odit Team</p>"
+}
