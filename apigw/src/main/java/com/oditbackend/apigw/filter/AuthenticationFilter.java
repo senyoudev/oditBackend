@@ -7,16 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import com.example.helpers.exceptions.UnauthorizedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,9 +27,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     @Autowired
     private EurekaClient discoveryClient;
+
     public AuthenticationFilter(RestTemplate restTemplate) {
         super(Config.class);
     }
+
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
@@ -42,27 +40,25 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             String requestPath = request.getPath().value();
 
             // Get the token from the request
-            String token = request.getHeaders().getFirst("Authorization").substring(7);
+            String authorization = request.getHeaders().getFirst("Authorization");
 
-            if (requestPath.startsWith("/api/v1/admin/")) {
+            if (authorization != null) {
+                String token = authorization.substring(7);
 
-                if (!isTokenValidAsAdmin(token)) {
-                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-                    return response.writeWith(Mono.just(response.bufferFactory().wrap("Unauthorized access to admin resource".getBytes())));
+                if (requestPath.startsWith("/api/v1/admin/") && isTokenValidAsAdmin(token)) {
+                    return chain.filter(exchange);
                 }
-            }
-            // Validate the token
-            TokenValidationResponse tokenResponse = validateToken(token);
-            Integer userId = tokenResponse.getUserId();
-            String username = tokenResponse.getUsername();
-            if (userId != -1) {
+
+                // Validate the token
+                TokenValidationResponse tokenResponse = validateToken(token);
+                Integer userId = tokenResponse.getUserId();
+                String username = tokenResponse.getUsername();
+
                 URI uri = null;
                 try {
-//                    uri = new URI(request.getURI()+"?userId="+userId);
                     String existingUri = request.getURI().toString();
                     String parameterSeparator = existingUri.contains("?") ? "&" : "?";
-                    uri = new URI(existingUri + parameterSeparator + "userId=" + userId + "&username="+username);
+                    uri = new URI(existingUri + parameterSeparator + "userId=" + userId + "&username=" + username);
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
@@ -70,32 +66,29 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                 return chain.filter(modifiedExchange);
             } else {
-                response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-                DataBuffer buffer = response.bufferFactory().wrap("Unauthorized access to application".getBytes());
-                return response.writeWith(Mono.just(buffer));
+                throw new UnauthorizedException("Unauthorized access to application");
             }
         };
     }
-    public TokenValidationResponse validateToken(String token){
-        try{
+
+    public TokenValidationResponse validateToken(String token) {
+        try {
             InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
-            TokenValidationResponse res = template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate?token="+token, TokenValidationResponse.class);
+            TokenValidationResponse res = template.getForObject(instance.getHomePageUrl() + "/api/v1/auth/validate?token=" + token, TokenValidationResponse.class);
             return res;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.info(e.getMessage());
-            throw new RuntimeException("Failed to validate token", e);
+            throw new UnauthorizedException("Unauthorized access to application");
         }
     }
 
-    public Boolean isTokenValidAsAdmin(String token){
-        try{
+    public Boolean isTokenValidAsAdmin(String token) {
+        try {
             InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
-            Boolean res = template.getForObject(instance.getHomePageUrl()+"/api/v1/auth/validate-admin?token="+token, Boolean.class);
+            Boolean res = template.getForObject(instance.getHomePageUrl() + "/api/v1/auth/validate-admin?token=" + token, Boolean.class);
             return res;
-        }catch (Exception e){
-            log.info(e.getMessage());
-            return false;
+        } catch (Exception e) {
+            throw new UnauthorizedException("Unauthorized access to admin resource");
         }
     }
 

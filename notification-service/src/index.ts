@@ -33,4 +33,5 @@ app.listen(port, async () => {
   );
   await startEureka();
   await startConsumer();
+  
 });

@@ -27,7 +27,7 @@ const uploadToCloudinary = asyncHandler(async (req, res) => {
       .json({ url: result.secure_url, public_id: result.public_id });
   } catch (error: any) {
     fs.unlinkSync(file!.path);
-    res.status(500).json({ message: error });
+    res.status(400).json({ message: error });
   }
 });
 
@@ -48,7 +48,7 @@ const removeImage = asyncHandler(async (req, res) => {
       res.status(400).json({ message: "Failed to delete the file" });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error });
+    res.status(400).json({ message: error });
   }
 });
 
