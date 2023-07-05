@@ -1,8 +1,8 @@
 import amqp from "amqplib";
 import { send } from "../mailer/index";
-import dotenv from "dotenv";
+import { getEmailContent } from "../mailer/getEmailContent";
+import NotificationType from "../interfaces/NotificationType";
 
-dotenv.config();
 
 // Declare the exchange, queue, and routing key
 const exchange = process.env.EXCHANGE || "internal.exchange";
@@ -32,14 +32,14 @@ const startConsumer = async () => {
           const { from, to, type } = JSON.parse(msg.content.toString()) as {
             from: string;
             to: string;
-            type: string;
+            type: NotificationType;
           };
-
-          console.log("sending email")
+       
+          const {subject, content} = getEmailContent(type,{});
 
           try {
             // Send email
-            await send(from, to);
+            await send(from, to,subject,content);
             console.log(`Email sent to ${to}`);
           } catch (error) {
             console.error("Error sending email:", error);
