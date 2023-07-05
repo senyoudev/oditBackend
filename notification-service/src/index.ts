@@ -4,9 +4,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import router from "./notification/notification.router";
 import { startEureka } from "./eureka";
-import { startConsumer } from "./rabbitMq/notificationConsumer";
+import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
+import { startConsumer } from "./rabbitMq/notificationConsumer";
 
 const app = express();
 const port = process.env.PORT || 4000;
