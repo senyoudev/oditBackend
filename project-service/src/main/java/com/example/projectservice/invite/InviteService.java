@@ -29,7 +29,7 @@ public class InviteService {
 
     public Invite getInvitationById(Integer id) {
         Invite invite = inviteRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("invitation with id "+id+" does not exist"));
+                .orElseThrow(() -> new NotFoundException("invitation with id "+id+" does not exist"));
         return invite;
     }
 
