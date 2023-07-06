@@ -1,6 +1,5 @@
-package com.example.projectservice.projectmember;
+package com.example.roomservice.entity;
 
-import com.example.projectservice.project.Project;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,42 +12,36 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 
+@Entity
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Builder
 @Table(
+        name = "room_members",
         uniqueConstraints=
-        @UniqueConstraint(columnNames={"projectId", "userId"})
+        @UniqueConstraint(columnNames={"roomId", "memberId"})
 )
-public class ProjectMember {
-
+public class RoomMember {
     @Id
     @SequenceGenerator(
-            name = "projectmember_id_sequence",
-            sequenceName = "projectmember_id_sequence"
+            name = "room_member_id_sequence",
+            sequenceName = "room_member_id_sequence"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "projectmember_id_sequence"
+            generator = "room_member_id_sequence"
     )
     private Integer id;
+    @Column(nullable = false)
+    private Integer memberId;
 
     @ManyToOne
-    @JoinColumn(name = "projectId")
+    @JoinColumn(name = "roomId",nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private Project project;
-
-    @Column(nullable = false,unique=true)
-    private Integer userId;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private MemberRole role;
+    private Room room;
 
     @CreationTimestamp
     private Date creationDate;
 }
-

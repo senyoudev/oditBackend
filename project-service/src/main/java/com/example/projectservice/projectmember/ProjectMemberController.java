@@ -1,9 +1,5 @@
 package com.example.projectservice.projectmember;
 
-import com.example.projectservice.project.Project;
-import com.example.projectservice.project.ProjectCreationRequest;
-import com.example.projectservice.project.ProjectService;
-import com.example.projectservice.project.ProjectUpdateRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,17 +22,22 @@ public class ProjectMemberController {
     }
 
     @PostMapping
-    public ProjectMember addUserToProject(@RequestBody ProjectMemberCreationRequest request){
-        return projectMemberService.addUserToProject(request);
+    public ProjectMember addUserToProject(@RequestParam Integer adminId,@RequestBody ProjectMemberCreationRequest request){
+        return projectMemberService.addUserToProject(adminId,request);
     }
 
     @PutMapping(value = "{id}")
-    public ProjectMember updateProjectMember(@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
-        return projectMemberService.updateProjectMember(id,request);
+    public ProjectMember updateProjectMember(@RequestParam Integer adminId,@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
+        return projectMemberService.updateProjectMember(id,adminId,request);
     }
 
     @DeleteMapping(value = "{id}")
-    public String removeMemberFromProject(@PathVariable("id") Integer id){
-        return projectMemberService.removeMemberFromProject(id);
+    public String removeMemberFromProject(@RequestParam Integer adminId,@PathVariable("id") Integer id){
+        return projectMemberService.removeMemberFromProject(id,adminId);
+    }
+
+    @GetMapping("/checkifmember")
+    public Boolean checkIfMember(@RequestParam Integer memberId) {
+        return projectMemberService.checkIfMember(memberId);
     }
 }

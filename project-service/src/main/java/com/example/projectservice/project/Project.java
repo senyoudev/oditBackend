@@ -43,8 +43,10 @@ public class Project {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @OneToMany(mappedBy = "project")
-    private Set<ProjectMember> members;
+    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectMember> members = new HashSet<>();
+    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectMember> invitations = new HashSet<>();
 
     @CreationTimestamp
     private Date creationDate;
