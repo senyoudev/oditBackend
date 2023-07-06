@@ -29,13 +29,17 @@ const startConsumer = async () => {
       queue,
       async (msg: any) => {
         if (msg) {
-          const { from, to, type } = JSON.parse(msg.content.toString()) as {
+          const { from, to,inviteLink,recipient,resetToken, type } = JSON.parse(msg.content.toString()) as {
             from: string;
             to: string;
+            inviteLink?: string;
+            recipient?: string;
+            resetToken?:string;
             type: NotificationType;
           };
+          console.log("msg",msg.content.toString())
        
-          const {subject, content} = getEmailContent(type,{});
+          const {subject, content} = getEmailContent(type,{inviteLink,recipient,resetToken});
 
           try {
             // Send email

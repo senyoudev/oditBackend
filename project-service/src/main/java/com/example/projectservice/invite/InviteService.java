@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -41,11 +42,16 @@ public class InviteService {
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new NotFoundException("Project not found"));
+        String email = request.getUserEmail();
+
+        if(!email.contains("@gmail.com")) {
+            throw new BadRequestException("Invalid Gmail email address");
+        }
 
         if (userId != project.getAdminId()) {
             throw new UnauthorizedException("Only project owners can send invitations.");
         }
-        if (request.getUserEmail().equals(username)) {
+        if (email.equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
         Invite invite = null;
@@ -61,11 +67,13 @@ public class InviteService {
         }
 
         //send a notification to the invited user
-        NotificationRequest notificationRequest = new NotificationRequest(
-                username,
-                invite.getUserEmail(),
-                NotificationType.INVITATION
-        );
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .from(username)
+                .to(invite.getUserEmail())
+                .InviteLink("https://example.com/invite")
+                .recipient(email.substring(0, email.indexOf("@gmail.com")))
+                .type(NotificationType.INVITATION)
+                .build();
         rabbitMQMessageProducer.publish(
                 notificationRequest,
                 "internal.exchange",
@@ -84,12 +92,13 @@ public class InviteService {
         ProjectMemberCreationRequest request = new ProjectMemberCreationRequest(invitation.getProject().getId(), userId);
         projectMemberService.addUserToProject(request);
 
+
         //send an accept notification to the admin
-        NotificationRequest notificationRequest = new NotificationRequest(
-                invitation.getUserEmail(),
-                invitation.getProject().getAdminEmail(),
-                NotificationType.ACCEPT_NOTIF
-        );
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .from(invitation.getUserEmail())
+                .to( invitation.getProject().getAdminEmail())
+                .type(NotificationType.ACCEPT_NOTIF)
+                .build();
 
         //Todo remove accepted from invitation model
         //Delete Invitation
@@ -110,11 +119,11 @@ public class InviteService {
         inviteRepository.delete(invitation);
 
         //send an accept notification to the admin
-        NotificationRequest notificationRequest = new NotificationRequest(
-                invitation.getUserEmail(),
-                invitation.getProject().getAdminEmail(),
-                NotificationType.ACCEPT_NOTIF
-        );
+        NotificationRequest notificationRequest =NotificationRequest.builder()
+                .from(invitation.getUserEmail())
+                .to( invitation.getProject().getAdminEmail())
+                .type(NotificationType.DENY_NOTIF)
+                .build();
         rabbitMQMessageProducer.publish(
                 notificationRequest,
                 "internal.exchange",
