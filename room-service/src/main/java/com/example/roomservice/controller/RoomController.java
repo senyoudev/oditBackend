@@ -26,12 +26,12 @@ public class RoomController {
     }
 
     @PostMapping
-    public Room createProject(@RequestParam Integer userId,@RequestBody RoomCreationRequest request){
+    public Room createRoom(@RequestParam Integer userId,@RequestBody RoomCreationRequest request){
         return roomService.createRoom(userId,request);
     }
 
     @PutMapping(value = "{id}")
-    public Room updateProject(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestBody RoomUpdateRequest request){
+    public Room updateRoom(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestBody RoomUpdateRequest request){
         return roomService.updateRoom(id,userId,request);
     }
 

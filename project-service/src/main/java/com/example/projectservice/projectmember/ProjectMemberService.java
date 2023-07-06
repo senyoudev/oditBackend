@@ -79,7 +79,7 @@ public class ProjectMemberService {
     public Boolean checkIfMember(Integer memberId) {
         try {
             projectMemberRepository
-                    .findProjectMemberByMemberId(memberId).orElseThrow(()->new NotFoundException("member with id "+memberId +" does not exist"));
+                    .findProjectMemberByUserId(memberId).orElseThrow(()->new NotFoundException("member with id "+memberId +" does not exist"));
             return true;
         } catch (Exception e) {
             return false;

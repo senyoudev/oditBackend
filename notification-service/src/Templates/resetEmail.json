@@ -1,0 +1,4 @@
+{
+  "subject": "Password Reset Email",
+  "content": "<h1>Password Reset Email</h1><p>Dear {recipient},</p><p>We have received a request to reset your password. Please Enter  the code below to proceed:</p>{resetPassword} in the App Reset Password</a><p>If you did not request a password reset, please ignore this email.</p><p>Best regards,</p><p>The Odit Team</p>"
+}

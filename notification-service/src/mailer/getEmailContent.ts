@@ -17,6 +17,9 @@ export const getEmailContent = (notificationType: NotificationType, dynamicData:
     case NotificationType.REGISTRATION_NOTIF:
       templateFilePath = "src/Templates/registration.json";
       break;
+    case NotificationType.PASSWORD_RESET:
+        templateFilePath = "src/Templates/resetEmail.json";
+        break;
     default:
       throw new Error("Invalid notification type");
   }
@@ -25,12 +28,13 @@ export const getEmailContent = (notificationType: NotificationType, dynamicData:
   const template = JSON.parse(templateData);
 
   const { subject, content } = template;
-  const { username, invitationLink } = dynamicData;
+  const { recipient, inviteLink,resetToken } = dynamicData;
 
   // Replace placeholders in the template with dynamic data
   const replacedContent = content
-    .replace("{username}", username)
-    .replace("{invitationLink}", invitationLink);
+    .replace("{recipient}", recipient || "Odit User")
+    .replace("{invitationLink}", inviteLink)
+    .replace("{resetPassword}", resetToken);
 
   return { subject, content: replacedContent };
 };
