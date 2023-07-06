@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import router from "./notification/notification.router";
 import { startEureka } from "./eureka";
 import path from "path";
+import "./config/db"
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 import { startConsumer } from "./rabbitMq/notificationConsumer";

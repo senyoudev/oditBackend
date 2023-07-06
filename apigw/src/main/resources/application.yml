@@ -2,10 +2,7 @@ server:
   port: 8083
   error:
     include-message: always
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/master
 spring:
   application:
     name: api-gateway
