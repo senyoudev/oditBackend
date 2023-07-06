@@ -6,7 +6,7 @@ spring:
   application:
     name: room
   datasource:
-    password: yassine1
+    password: password
     url: jdbc:postgresql://localhost:5433/rooms
     username: postgres
   jpa:

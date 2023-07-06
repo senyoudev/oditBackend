@@ -5,5 +5,6 @@ public enum NotificationType {
     ACCEPT_NOTIF,
     DENY_NOTIF,
     REGISTRATION_NOTIF,
+    PASSWORD_RESET_NOTIF,
 
 }

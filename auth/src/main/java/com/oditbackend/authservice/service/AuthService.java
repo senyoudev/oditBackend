@@ -66,11 +66,13 @@ public class AuthService {
         saveUserToken(savedUser, jwtToken);
 
         //send a notification to the invited user
-        NotificationRequest notificationRequest = new NotificationRequest(
-                "odit.contact@gmail.com",
-                request.getEmail(),
-                NotificationType.REGISTRATION_NOTIF
-        );
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .from("odit.contact@gmail.com")
+                .to(request.getEmail())
+                .type(NotificationType.REGISTRATION_NOTIF)
+                .build();
+
+
         rabbitMQMessageProducer.publish(
                 notificationRequest,
                 "internal.exchange",
