@@ -82,7 +82,7 @@ public class PasswordResetService {
     public PasswordResetToken validateToken(String token) {
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new InvalidTokenException("Invalid reset token."));
-  
+
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new ExpiredTokenException("Reset token has expired.");
         }

@@ -2,7 +2,10 @@ server:
   port: 8083
   error:
     include-message: always
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 spring:
   application:
     name: api-gateway
@@ -23,6 +26,12 @@ spring:
           uri: lb://project
           predicates:
             - Path=/api/v1/projects/**, /api/v1/projectmembers/**, /api/v1/invitations/**,/api/v1/admin/Projects/**
+          filters:
+            - AuthenticationFilter
+        - id: room
+          uri: lb://room
+          predicates:
+            - Path=/api/v1/rooms/**, /api/v1/room-members/**
           filters:
             - AuthenticationFilter
         - id: upload
