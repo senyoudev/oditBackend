@@ -6,7 +6,7 @@ Odit - Task Management Application Backend Using Microsevices Architecture
 
 ## Overview
 
-The Microservice Application is a project and task tracking tool that enables efficient management of projects and tasks. It provides a unique feature called "Rooms" that enhances collaboration and organization within projects. Rooms represent specific teams or departments within a project, such as Development, Marketing, or Design. Users can create multiple Rooms within a project and invite members via email.
+This Microservice Application is a project and task tracking tool that enables efficient management of projects and tasks. It provides a unique feature called "Rooms" that enhances collaboration and organization within projects. Rooms represent specific teams or departments within a project, such as Development, Marketing, or Design. Users can create multiple Rooms within a project and invite members via email.
 
 Each Room contains tasks specific to that Room, allowing users to categorize and focus on tasks related to their respective areas of responsibility. Additionally, users can communicate and collaborate within Rooms using a messaging feature, fostering seamless communication for discussing tasks, sharing updates, and addressing project-related matters efficiently.
 
