@@ -25,17 +25,36 @@ public class RoomMemberService {
     private EurekaClient discoveryClient;
 
     public List<RoomMember> getRoomMembers(Integer roomId) {
-        //Todo only project members can view  room members
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         List<RoomMember> members = roomMemberRepository.findByRoomId(roomId);
+        for (RoomMember member : members) {
+            Boolean isMember = restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
+                    Boolean.class
+            );
+
+            if (isMember == null || !isMember) {
+                throw new UnauthorizedException("Member with ID " + member.getMemberId() + " is not authorized.");
+            }
+        }
 
         return members;
     }
 
     public RoomMember getRoomMember(Integer id) {
-        //Todo only project members can view a room member
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         RoomMember member = roomMemberRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
+
+        Boolean isMember = restTemplate.getForObject(
+                instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
+                Boolean.class
+        );
+
+        if (isMember == null || !isMember) {
+            throw new UnauthorizedException("Member with ID " + member.getMemberId() + " is not authorized.");
+        }
 
         return member;
     }
