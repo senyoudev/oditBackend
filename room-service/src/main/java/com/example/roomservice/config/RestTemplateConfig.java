@@ -1,4 +1,4 @@
-package com.oditbackend.apigw.config;
+package com.example.roomservice.config;
 
 
 import org.springframework.context.annotation.Bean;

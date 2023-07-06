@@ -28,12 +28,17 @@ public class ProjectController {
     }
 
     @PutMapping(value = "{id}")
-    public Project updateProject(@PathVariable("id") Integer id,@RequestBody ProjectUpdateRequest projectUpdateRequest){
-       return projectService.updateProject(id,projectUpdateRequest);
+    public Project updateProject(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestBody ProjectUpdateRequest projectUpdateRequest){
+       return projectService.updateProject(id,userId,projectUpdateRequest);
     }
 
     @DeleteMapping(value = "{id}")
-    public String updateProject(@PathVariable("id") Integer id){
-        return projectService.deleteProject(id);
+    public String deleteProject(@PathVariable("id") Integer id,@RequestParam Integer userId){
+        return projectService.deleteProject(id,userId);
+    }
+
+    @GetMapping("/checkifadmin")
+    public Boolean checkIfAdmin(@RequestParam Integer projectId,@RequestParam Integer userId) {
+        return projectService.checkIfAdmin(projectId,userId);
     }
 }
