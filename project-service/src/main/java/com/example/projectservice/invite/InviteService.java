@@ -27,9 +27,13 @@ public class InviteService {
     private final ProjectMemberService projectMemberService;
 
 
-    public Invite getInvitationById(Integer id) {
+    public Invite getInvitationById(Integer id,Integer userId,String username) {
         Invite invite = inviteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("invitation with id "+id+" does not exist"));
+
+        if(userId != invite.getProject().getAdminId() && username != invite.getUserEmail()){
+            throw new UnauthorizedException("user must be sender or receiver");
+        }
         return invite;
     }
 
@@ -75,7 +79,7 @@ public class InviteService {
     }
 
     public void acceptInvitation(Integer invitationId, Integer userId, String username) {
-        Invite invitation = getInvitationById(invitationId);
+        Invite invitation = getInvitationById(invitationId,userId,username);
         if (!invitation.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You Can Accept Only Your Invitations");
         }
@@ -102,8 +106,8 @@ public class InviteService {
         );
     }
 
-    public String declineInvitation(Integer invitationId, String username) {
-        Invite invitation = getInvitationById(invitationId);
+    public String declineInvitation(Integer invitationId, Integer userId,String username) {
+        Invite invitation = getInvitationById(invitationId,userId,username);
         if (!invitation.getUserEmail().equals(username)) {
             throw new UnauthorizedException("You Can Remove Only Your Invitations");
         }

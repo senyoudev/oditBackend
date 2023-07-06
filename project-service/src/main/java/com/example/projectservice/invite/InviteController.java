@@ -19,8 +19,8 @@ public class InviteController {
     }
 
     @GetMapping(value = "{id}")
-    public Invite getInvitation(@PathVariable("id") Integer id) {
-        return inviteService.getInvitationById(id);
+    public Invite getInvitation(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestParam String username) {
+        return inviteService.getInvitationById(id,userId,username);
     }
 
     @PostMapping
@@ -35,7 +35,7 @@ public class InviteController {
     }
 
     @DeleteMapping(value = "{id}")
-    public String removeInvitation(@PathVariable("id") Integer id,@RequestParam String username){
-        return inviteService.declineInvitation(id,username);
+    public String removeInvitation(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestParam String username){
+        return inviteService.declineInvitation(id,userId,username);
     }
 }
