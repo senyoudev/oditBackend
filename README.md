@@ -14,22 +14,25 @@ The Microservice Application facilitates ease of use and collaboration by incorp
 
 ## Microservices
 
-The Microservice Application is built using a microservices architecture, which allows for independent development, deployment, and scaling of individual components. The application consists of the following microservices:
+Odit is built using a microservices architecture, which allows for independent development, deployment, and scaling of individual components. The application consists of the following microservices:
 
 o ensure data consistency.
-   - Built with Node.js and TypeScript.
+   - Built with Node.js and TypeScript + Spring Boot.
+
 
 1. **Notification Service**
    - Handles notifications and communication within Rooms.
    - Sends email notifications to Room members for important updates and discussions.
    - Integrates with RabbitMQ for message queueing.
    - Implemented using Node.js and TypeScript.
+   - Uses PostgresSql as a database
 
 2. **Auth Service**
    - Manages user authentication and authorization.
    - Handles user registration, login, and access control.
    - Integrates with a PostgreSQL database for user data storage.
    - Developed using Spring Boot.
+
 
 Each microservice is independently deployable and can be scaled horizontally to handle increased load. They communicate with each other via RESTful APIs or message queues to ensure seamless coordination and data consistency across the application.
 
