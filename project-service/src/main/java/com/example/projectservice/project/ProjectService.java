@@ -4,7 +4,9 @@ import com.example.helpers.exceptions.BadRequestException;
 import com.example.helpers.exceptions.NotFoundException;
 import com.example.helpers.exceptions.UnauthorizedException;
 import com.example.projectservice.projectmember.ProjectMember;
+import com.example.projectservice.projectmember.ProjectMemberCreationRequest;
 import com.example.projectservice.projectmember.ProjectMemberRepository;
+import com.example.projectservice.projectmember.ProjectMemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final ProjectMemberService projectMemberService;
 
     public List<Project> getUserProjects(Integer userId) {
         List<Project> projects = projectRepository.findByAdminId(userId);
@@ -30,6 +33,7 @@ public class ProjectService {
     }
 
     public Project getProject(Integer id) {
+        //Todo user must be member of this project (private projects)
         Project project = projectRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("project with id " + id + " does not exist"));
@@ -49,8 +53,15 @@ public class ProjectService {
                     .description(request.description())
                     .isPublic(request.isPublic())
                     .build();
-
             projectRepository.saveAndFlush(project);
+
+            //Add admin to project members
+            ProjectMemberCreationRequest _request = new ProjectMemberCreationRequest(project.getId(),userId);
+            projectMemberService.addUserToProject(_request);
+
+            List<ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
+            project.setMembers(new HashSet<>(members));
+
             return project;
         } catch (Exception e) {
             throw new BadRequestException("Your request is not correct");
@@ -62,7 +73,9 @@ public class ProjectService {
         Project project = projectRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("project with id " + id + " does not exist"));
+
         if(userId != project.getAdminId()) new UnauthorizedException("You are not permited to do this operation");
+
         try {
             project.setTitle(request.title());
             project.setDescription(request.description());

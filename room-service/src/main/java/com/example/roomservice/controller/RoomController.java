@@ -16,13 +16,13 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping
-    public List<Room> getProjectRooms(@RequestParam Integer projectId) {
-        return roomService.getProjectRooms(projectId);
+    public List<Room> getProjectRooms(@RequestParam Integer projectId,@RequestParam Integer userId) {
+        return roomService.getProjectRooms(projectId,userId);
     }
 
     @GetMapping(value = "{id}")
-    public Room getRoom(@PathVariable("id") Integer id) {
-        return roomService.getRoom(id);
+    public Room getRoom(@PathVariable("id") Integer id,@RequestParam Integer userId) {
+        return roomService.getRoom(id,userId);
     }
 
     @PostMapping
@@ -39,4 +39,5 @@ public class RoomController {
     public String deleteRoom(@PathVariable("id") Integer id,@RequestParam Integer userId){
         return roomService.deleteRoom(id,userId);
     }
+
 }

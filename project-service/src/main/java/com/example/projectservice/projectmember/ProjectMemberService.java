@@ -15,24 +15,29 @@ import java.util.List;
 public class ProjectMemberService {
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectRepository projectRepository;
-    public List<ProjectMember> getProjectMembers(Integer projectId){
+    public List<ProjectMember> getProjectMembers(Integer projectId,Integer userId){
         Project project = projectRepository
                 .findById(projectId)
                 .orElseThrow(()->new NotFoundException("project with id "+projectId+" does not exist"));
+
+        if(!project.getIsPublic()){
+            projectMemberRepository.findProjectMemberByUserId(userId)
+                    .orElseThrow(()->new UnauthorizedException("You must be a member in this project"));
+        }
+
         List <ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
         return members;
     }
-    public ProjectMember getProjectMember(Integer id){
+    public ProjectMember getProjectMember(Integer id,Integer userId){
         ProjectMember member = projectMemberRepository
                 .findById(id)
                 .orElseThrow(()->new NotFoundException("member with id {id} does not exist"));
-
+        if(userId != member.getUserId()) throw new UnauthorizedException("You must be a member in this project");
         return member;
     }
-    public ProjectMember addUserToProject(Integer userId,ProjectMemberCreationRequest request) {
+    public ProjectMember addUserToProject(ProjectMemberCreationRequest request) {
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(()->new NotFoundException("project with id {id} does not exist"));
-        if(userId != project.getAdminId()) new UnauthorizedException("You are not permited to do this operation");
         try{
             ProjectMember member = ProjectMember.builder()
                     .project(project)

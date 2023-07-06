@@ -12,18 +12,19 @@ public class ProjectMemberController {
     private final ProjectMemberService projectMemberService;
 
     @GetMapping
-    public List<ProjectMember> getProjectMembers(@RequestParam Integer projectId) {
-        return projectMemberService.getProjectMembers(projectId);
+    public List<ProjectMember> getProjectMembers(@RequestParam Integer userId,@RequestParam Integer projectId) {
+        return projectMemberService.getProjectMembers(projectId,userId);
     }
 
     @GetMapping(value = "{id}")
-    public ProjectMember getProjectMember(@PathVariable("id") Integer id) {
-        return projectMemberService.getProjectMember(id);
+    public ProjectMember getProjectMember(@PathVariable("id") Integer id,@RequestParam Integer userId) {
+        return projectMemberService.getProjectMember(id,userId);
     }
 
+    //Todo remove this methode: user is added to project when accept invitation
     @PostMapping
-    public ProjectMember addUserToProject(@RequestParam Integer adminId,@RequestBody ProjectMemberCreationRequest request){
-        return projectMemberService.addUserToProject(adminId,request);
+    public ProjectMember addUserToProject(@RequestBody ProjectMemberCreationRequest request){
+        return projectMemberService.addUserToProject(request);
     }
 
     @PutMapping(value = "{id}")

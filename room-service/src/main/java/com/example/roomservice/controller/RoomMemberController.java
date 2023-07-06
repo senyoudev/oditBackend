@@ -33,4 +33,9 @@ public class RoomMemberController {
     public String exitRoom(@PathVariable("id") Integer id,@RequestParam Integer userId){
         return roomMemberService.exitRoom(id,userId);
     }
+
+    @DeleteMapping(value = "{id}/exit")
+    public String removeRoomMember(@PathVariable("id") Integer id,@RequestParam Integer userId){
+        return roomMemberService.removeRoomMember(id,userId);
+    }
 }
