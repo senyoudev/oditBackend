@@ -1,11 +1,14 @@
 package com.example.roomservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -17,24 +20,27 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(
-        name = "room",
+        name = "task",
         uniqueConstraints=
-        @UniqueConstraint(columnNames={"projectId", "name"})
+        @UniqueConstraint(columnNames={"sectionId", "name"})
 )
-public class Room {
+public class Task {
     @Id
     @SequenceGenerator(
-            name = "room_id_sequence",
-            sequenceName = "room_id_sequence"
+            name = "task_id_sequence",
+            sequenceName = "task_id_sequence"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "room_id_sequence"
+            generator = "task_id_sequence"
     )
     private Integer id;
 
-    @Column(nullable = false)
-    private Integer projectId;
+    @ManyToOne
+    @JoinColumn(name = "sectionId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Section section;
 
     @Column(nullable = false)
     private String name;
@@ -42,12 +48,13 @@ public class Room {
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "room",cascade = CascadeType.ALL)
-    private Set<RoomMember> members = new HashSet<>();
+    @Column(nullable = false)
+    private Date startDate;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    private Set<Section> sections = new HashSet<>();
+    @Column(nullable = false)
+    private Date deadline;
 
     @CreationTimestamp
     private Date creationDate;
 }
+
