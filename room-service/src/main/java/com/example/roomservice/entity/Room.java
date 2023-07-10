@@ -45,9 +45,6 @@ public class Room {
     @OneToMany(mappedBy = "room",cascade = CascadeType.ALL)
     private Set<RoomMember> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    private Set<Section> sections = new HashSet<>();
-
     @CreationTimestamp
     private Date creationDate;
 }
