@@ -6,7 +6,7 @@ import com.example.roomservice.service.RoomMemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/v1/room-members")
@@ -15,7 +15,7 @@ public class RoomMemberController {
     private final RoomMemberService roomMemberService;
 
     @GetMapping
-    public List<RoomMember> getRoomMembers(@RequestParam Integer roomId) {
+    public Set<RoomMember> getRoomMembers(@RequestParam Integer roomId) {
         return roomMemberService.getRoomMembers(roomId);
     }
 
@@ -37,5 +37,10 @@ public class RoomMemberController {
     @DeleteMapping(value = "{id}/exit")
     public String removeRoomMember(@PathVariable("id") Integer id,@RequestParam Integer userId){
         return roomMemberService.removeRoomMember(id,userId);
+    }
+
+    @GetMapping("/checkRoomMember")
+    public Boolean checkRoomMember(@RequestParam Integer userId) {
+        return roomMemberService.checkRoomMember(userId);
     }
 }

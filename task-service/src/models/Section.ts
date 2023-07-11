@@ -1,6 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import {taskSchema} from "./Task";
-import { ISection } from "../interfaces/Section";
+import { ISection } from "src/interfaces/Section";
 
 const sectionSchema = new mongoose.Schema({
   roomId: {
@@ -11,10 +10,14 @@ const sectionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  tasks:[taskSchema]
+  tasks: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "Task",
+    },
+  ],
 });
 
-const Section = mongoose.model("Section", sectionSchema);
-
+const Section: Model<ISection> = mongoose.model("Section", sectionSchema);
 
 export default Section;

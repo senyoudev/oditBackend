@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -24,9 +24,9 @@ public class RoomMemberService {
     private final RestTemplate restTemplate;
     private EurekaClient discoveryClient;
 
-    public List<RoomMember> getRoomMembers(Integer roomId) {
+    public Set<RoomMember> getRoomMembers(Integer roomId) {
         InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
-        List<RoomMember> members = roomMemberRepository.findByRoomId(roomId);
+        Set<RoomMember> members = roomMemberRepository.findByRoomId(roomId);
         for (RoomMember member : members) {
             Boolean isMember = restTemplate.getForObject(
                     instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
@@ -73,8 +73,8 @@ public class RoomMemberService {
                 instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + request.getMemberId(),
                 Boolean.class
         );
-        if (!isAdmin) throw new UnauthorizedException("You must be admin to add a member to specific room");
-        if (!isMember) throw new UnauthorizedException("User added must be a member in the project");
+        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("You must be admin to add a member to specific room");
+        if (Boolean.FALSE.equals(isMember)) throw new UnauthorizedException("User added must be a member in the project");
         try {
             RoomMember member = RoomMember.builder()
                     .room(room)
@@ -96,7 +96,7 @@ public class RoomMemberService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
 
-        //Todo request sended must be the person in the room
+        //Todo request sender must be the person in the room
         roomMemberRepository.delete(roomMember);
         return "member exited!";
     }
@@ -111,11 +111,29 @@ public class RoomMemberService {
                 instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + roomMember.getRoom().getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
-        if (!isAdmin) throw new UnauthorizedException("You must be admin to add a member to specific room");
+        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("You must be admin to add a member to specific room");
 
         roomMemberRepository.delete(roomMember);
 
         //Todo: send email to member
-        return "member exited!";
+        return "member removed!";
+    }
+
+    public Boolean checkRoomMember(Integer userId){
+
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+
+
+        try{
+            Integer memberId = restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId,
+                    Integer.class
+            );
+            roomMemberRepository.findByMemberId(memberId)
+                    .orElseThrow(()->new NotFoundException("room member with id " + memberId + " does not exist"));
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 }

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -25,17 +26,16 @@ public class ProjectMemberService {
                     .orElseThrow(()->new UnauthorizedException("You must be a member in this project"));
         }
 
-        List <ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
-        return members;
+        return projectMemberRepository.findProjectMembersByProject(project);
     }
     public ProjectMember getProjectMember(Integer id,Integer userId){
         ProjectMember member = projectMemberRepository
                 .findById(id)
                 .orElseThrow(()->new NotFoundException("member with id {id} does not exist"));
-        if(userId != member.getUserId()) throw new UnauthorizedException("You must be a member in this project");
+        if(!Objects.equals(userId, member.getUserId())) throw new UnauthorizedException("You must be a member in this project");
         return member;
     }
-    public ProjectMember addUserToProject(ProjectMemberCreationRequest request) {
+    public void addUserToProject(ProjectMemberCreationRequest request) {
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(()->new NotFoundException("project with id {id} does not exist"));
         try{
@@ -46,7 +46,6 @@ public class ProjectMemberService {
                     .build();
 
             projectMemberRepository.saveAndFlush(member);
-            return member;
         }catch (Exception e){
             throw new BadRequestException("Your request is not correct");
         }
@@ -56,7 +55,8 @@ public class ProjectMemberService {
         ProjectMember member = projectMemberRepository
                 .findById(id)
                 .orElseThrow(()->new NotFoundException("member with id "+id+ "does not exist"));
-        if(userId != member.getProject().getAdminId()) new UnauthorizedException("You are not permited to do this operation");
+        if(!Objects.equals(userId, member.getProject().getAdminId()))
+            throw new UnauthorizedException("You are not permited to do this operation");
         try{
             member.setRole(request.role());
             projectMemberRepository.save(member);
@@ -71,7 +71,8 @@ public class ProjectMemberService {
         ProjectMember member = projectMemberRepository
                 .findById(id)
                 .orElseThrow(()->new NotFoundException("member with id "+id +" does not exist"));
-        if(userId != member.getProject().getAdminId()) new UnauthorizedException("You are not permited to do this operation");
+        if(!Objects.equals(userId, member.getProject().getAdminId()))
+            throw new UnauthorizedException("You are not permited to do this operation");
         projectMemberRepository.delete(member);
         return "Member Removed from project";
     }
@@ -79,10 +80,16 @@ public class ProjectMemberService {
     public Boolean checkIfMember(Integer memberId) {
         try {
             projectMemberRepository
-                    .findProjectMemberByUserId(memberId).orElseThrow(()->new NotFoundException("member with id "+memberId +" does not exist"));
+                    .findById(memberId).orElseThrow(()->new NotFoundException("member with id "+memberId +" does not exist"));
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Integer getMemberId(Integer userId) {
+            ProjectMember projectMember = projectMemberRepository.findProjectMemberByUserId(userId)
+                    .orElseThrow(()->new NotFoundException("user with id "+userId +" does not exist"));
+            return projectMember.getId();
     }
 }

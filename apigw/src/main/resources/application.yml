@@ -31,6 +31,12 @@ spring:
             - Path=/api/v1/rooms/**, /api/v1/room-members/**
           filters:
             - AuthenticationFilter
+        - id: task
+          uri: lb://task
+          predicates:
+            - Path=/api/v1/tasks/**,/api/v1/sections/**
+          filters:
+            - AuthenticationFilter
         - id: upload
           uri: lb://upload
           predicates:
