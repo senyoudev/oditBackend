@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import taskSchema from "./Task";
+import { ISection } from "../interfaces/Section";
 
 const sectionSchema = new mongoose.Schema({
   roomId: {
@@ -13,6 +14,7 @@ const sectionSchema = new mongoose.Schema({
   tasks:[taskSchema]
 });
 
-const Section = mongoose.model("Section", sectionSchema);
+const Section:Model<ISection> = mongoose.model<ISection>("Section", sectionSchema);
+
 
 export default Section;
