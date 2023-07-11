@@ -1,7 +1,7 @@
 import mongoose, { Model, model } from "mongoose";
 import { ITask } from "../interfaces/Task";
 
-export const taskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
   sectionId: {
     type: mongoose.Types.ObjectId,
     required: true,
@@ -27,7 +27,7 @@ export const taskSchema = new mongoose.Schema({
     default:false
   },
   assignedMembers: {
-    type:[Number || String],
+    type:[Number],
     default:[]
   },
 });

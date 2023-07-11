@@ -3,8 +3,11 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
-import errorHandler from './middlewares/errorMiddleware';
+import errorHandler from "./middlewares/errorMiddleware";
 import baseRoutes from "./routes";
+import http from "http";
+import { Server } from "socket.io";
+import { startEureka } from "./eureka";
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 import connectDb from "./config/connectDb";
@@ -23,16 +26,53 @@ app
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
   .use(errorHandler)
-  .use("/api/v1", baseRoutes)
-
+  .use("/api/v1", baseRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Upload Api Is running");
 });
 
-app.listen(port, async () => {
+//Socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+  maxHttpBufferSize: 1e10,
+});
+
+io.on("connect", (socket) => {
+  socket.on("join", ({ roomId, roomMemberId }) => {
+    socket.join(`room-${roomId}`);
+    io.to(`room-${roomId}`).emit("memberOnline", { roomMemberId });
+    console.log("join");
+  });
+
+  socket.on("taskDone", async ({ roomId, taskId }, callback) => {
+    io.to(`room-${roomId}`).emit("done", { taskId });
+    console.log("Task done");
+  });
+
+  socket.on("removeCheck", async ({ roomId, taskId }, callback) => {
+    io.to(`room-${roomId}`).emit("done", { taskId });
+    console.log("Task done");
+  });
+
+  socket.on("taskCreated", async ({ roomId, sectionId }, callback) => {
+    io.to(`room-${roomId}`).emit("SectionUpdated", { sectionId });
+    console.log("Task done");
+  });
+
+  socket.on("taskRemoved", async ({ roomId, sectionId }, callback) => {
+    io.to(`room-${roomId}`).emit("SectionUpdated", { sectionId });
+    console.log("Task done");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("disconnect");
+  });
+});
+
+server.listen(port, async () => {
   console.log(
     `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
   );
-  //await startEureka();
+  await startEureka();
 });

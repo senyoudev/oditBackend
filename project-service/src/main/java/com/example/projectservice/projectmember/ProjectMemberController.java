@@ -21,12 +21,6 @@ public class ProjectMemberController {
         return projectMemberService.getProjectMember(id,userId);
     }
 
-    //Todo remove this methode: user is added to project when accept invitation
-    @PostMapping
-    public ProjectMember addUserToProject(@RequestBody ProjectMemberCreationRequest request){
-        return projectMemberService.addUserToProject(request);
-    }
-
     @PutMapping(value = "{id}")
     public ProjectMember updateProjectMember(@RequestParam Integer adminId,@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
         return projectMemberService.updateProjectMember(id,adminId,request);
@@ -37,8 +31,14 @@ public class ProjectMemberController {
         return projectMemberService.removeMemberFromProject(id,adminId);
     }
 
+    //Todo remove this endpoints from gateway (used only by services)
     @GetMapping("/checkifmember")
     public Boolean checkIfMember(@RequestParam Integer memberId) {
         return projectMemberService.checkIfMember(memberId);
+    }
+
+    @GetMapping("/getMemberId")
+    public Integer getMemberId(@RequestParam Integer userId) {
+        return projectMemberService.getMemberId(userId);
     }
 }

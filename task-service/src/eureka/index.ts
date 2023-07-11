@@ -30,7 +30,7 @@ const eurekaClient: any = new Eureka({
   },
 });
 
-async function startEureka() {
+export const startEureka = async () => {
   eurekaClient.logger.level("debug");
 
   eurekaClient.start((error: any) => {
@@ -41,6 +41,6 @@ async function startEureka() {
     console.log("after deregistered");
     process.exit();
   });
-}
+};
 
-export { startEureka };
+export default eurekaClient;
