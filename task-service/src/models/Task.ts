@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Model, model } from "mongoose";
+import { ITask } from "../interfaces/Task";
 
-const taskSchema = new mongoose.Schema({
+export const taskSchema = new mongoose.Schema({
   sectionId: {
     type: mongoose.Types.ObjectId,
     required: true,
@@ -21,7 +22,17 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  assignedMembers: [Number],
+  isDone:{
+    type:Boolean,
+    default:false
+  },
+  assignedMembers: {
+    type:[Number || String],
+    default:[]
+  },
 });
 
-export default taskSchema;
+const Task: Model<ITask> = model<ITask>('Task', taskSchema);
+
+
+export default Task;
