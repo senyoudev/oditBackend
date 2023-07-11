@@ -3,10 +3,10 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
-import "./config/db";
-import connectDb from "./config/connectDb";
+import errorHandler from './middlewares/errorMiddleware';
 
 dotenv.config({ path: path.join(__dirname, ".env") });
+import connectDb from "./config/connectDb";
 
 connectDb();
 const app = express();
@@ -20,7 +20,9 @@ app
     })
   )
   .use(bodyParser.json({ limit: "30mb" }))
-  .use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+  .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
+  .use(errorHandler);
+
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Upload Api Is running");
