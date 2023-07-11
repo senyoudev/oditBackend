@@ -1,7 +1,7 @@
 import mongoose, { Model, model } from "mongoose";
 import { ITask } from "../interfaces/Task";
 
-const taskSchema = new mongoose.Schema({
+export const taskSchema = new mongoose.Schema({
   sectionId: {
     type: mongoose.Types.ObjectId,
     required: true,

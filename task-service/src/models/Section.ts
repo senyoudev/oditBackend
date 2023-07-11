@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import taskSchema from "./Task";
+import {taskSchema} from "./Task";
 import { ISection } from "../interfaces/Section";
 
 const sectionSchema = new mongoose.Schema({
@@ -14,7 +14,7 @@ const sectionSchema = new mongoose.Schema({
   tasks:[taskSchema]
 });
 
-const Section:Model<ISection> = mongoose.model<ISection>("Section", sectionSchema);
+const Section = mongoose.model("Section", sectionSchema);
 
 
 export default Section;
