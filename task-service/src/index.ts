@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
 import errorHandler from './middlewares/errorMiddleware';
+import baseRoutes from "./routes";
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 import connectDb from "./config/connectDb";
@@ -21,7 +22,8 @@ app
   )
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
-  .use(errorHandler);
+  .use(errorHandler)
+  .use("/api/v1", baseRoutes)
 
 
 app.get("/", (req: Request, res: Response) => {
