@@ -25,8 +25,8 @@ app
   )
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
+  .use("/api/v1", baseRoutes)
   .use(errorHandler)
-  .use("/api/v1", baseRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Upload Api Is running");
@@ -38,29 +38,29 @@ const io = new Server(server, {
   maxHttpBufferSize: 1e10,
 });
 
-io.on("connect", (socket) => {
-  socket.on("join", ({ roomId, roomMemberId }) => {
+io.on("connect", (socket:any) => {
+  socket.on("join", ({ roomId , roomMemberId }:any) => {
     socket.join(`room-${roomId}`);
     io.to(`room-${roomId}`).emit("memberOnline", { roomMemberId });
     console.log("join");
   });
 
-  socket.on("taskDone", async ({ roomId, taskId }, callback) => {
+  socket.on("taskDone", async ({ roomId, taskId }:any, callback:any) => {
     io.to(`room-${roomId}`).emit("done", { taskId });
     console.log("Task done");
   });
 
-  socket.on("removeCheck", async ({ roomId, taskId }, callback) => {
+  socket.on("removeCheck", async ({ roomId, taskId }:any, callback:any) => {
     io.to(`room-${roomId}`).emit("done", { taskId });
     console.log("Task done");
   });
 
-  socket.on("taskCreated", async ({ roomId, sectionId }, callback) => {
+  socket.on("taskCreated", async ({ roomId, sectionId }:any, callback:any) => {
     io.to(`room-${roomId}`).emit("SectionUpdated", { sectionId });
     console.log("Task done");
   });
 
-  socket.on("taskRemoved", async ({ roomId, sectionId }, callback) => {
+  socket.on("taskRemoved", async ({ roomId, sectionId }:any, callback:any) => {
     io.to(`room-${roomId}`).emit("SectionUpdated", { sectionId });
     console.log("Task done");
   });

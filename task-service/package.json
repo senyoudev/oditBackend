@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
+    "@types/axios": "^0.14.0",
     "@types/body-parser": "^1.19.2",
     "@types/cors": "^2.8.13",
     "@types/eureka-js-client": "^4.5.5",
