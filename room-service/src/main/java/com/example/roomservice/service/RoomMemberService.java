@@ -1,8 +1,12 @@
 package com.example.roomservice.service;
 
+import com.example.amqp.RabbitMQMessageProducer;
 import com.example.helpers.exceptions.BadRequestException;
 import com.example.helpers.exceptions.NotFoundException;
 import com.example.helpers.exceptions.UnauthorizedException;
+import com.example.helpers.notifications.NotificationRequest;
+import com.example.helpers.notifications.NotificationType;
+import com.example.helpers.projects.CustomProjectMemberResponse;
 import com.example.roomservice.Dto.RoomMemberCreationRequest;
 import com.example.roomservice.entity.Room;
 import com.example.roomservice.entity.RoomMember;
@@ -14,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -23,21 +28,23 @@ public class RoomMemberService {
     private final RoomRepository roomRepository;
     private final RestTemplate restTemplate;
     private EurekaClient discoveryClient;
+    private RabbitMQMessageProducer rabbitMQMessageProducer;
 
-    public Set<RoomMember> getRoomMembers(Integer roomId) {
+    public Set<RoomMember> getRoomMembers(Integer roomId,Integer userId) {
+        Room room = roomRepository.findById(roomId)
+                 .orElseThrow(()->new NotFoundException("room with id "+roomId+" not found"));
         InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
-        Set<RoomMember> members = roomMemberRepository.findByRoomId(roomId);
-        for (RoomMember member : members) {
-            Boolean isMember = restTemplate.getForObject(
-                    instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
-                    Boolean.class
-            );
 
-            if (isMember == null || !isMember) {
-                throw new UnauthorizedException("Member with ID " + member.getMemberId() + " is not authorized.");
-            }
+        try{
+            restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    CustomProjectMemberResponse.class
+            );
+        }catch (Exception e){
+            throw new UnauthorizedException("you must be a project member to get room members");
         }
 
+        Set<RoomMember> members = roomMemberRepository.findByRoomId(roomId);
         return members;
     }
 
@@ -73,35 +80,84 @@ public class RoomMemberService {
                 instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + request.getMemberId(),
                 Boolean.class
         );
-        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("You must be admin to add a member to specific room");
-        if (Boolean.FALSE.equals(isMember)) throw new UnauthorizedException("User added must be a member in the project");
-        try {
-            RoomMember member = RoomMember.builder()
-                    .room(room)
-                    .memberId(request.getMemberId())
-                    .build();
+        if (Boolean.FALSE.equals(isAdmin))
+            throw new UnauthorizedException("You must be admin to add a member to specific room");
+        if (Boolean.FALSE.equals(isMember))
+            throw new UnauthorizedException("User added must be a member in the project");
 
+        RoomMember member = RoomMember.builder()
+                .room(room)
+                .memberId(request.getMemberId())
+                .build();
+
+
+        try{
             roomMemberRepository.saveAndFlush(member);
-
-            //Todo: send email to member
-            return member;
-        } catch (Exception e) {
-            throw new BadRequestException("Your request is not correct");
+        }catch (Exception e){
+            throw new BadRequestException("member already joined the room");
         }
 
+        CustomProjectMemberResponse res = restTemplate.getForObject(
+                instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                CustomProjectMemberResponse.class
+        );
+
+        //Todo use other method to get memberEmail (more secured)
+        //notify admin that member exit the room
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .from(res.getAdminEmail())
+                .to(request.getMemberEmail())
+                .type(NotificationType.ACCEPT_NOTIF)
+                .build();
+
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
+
+        return member;
     }
 
-    public String exitRoom(Integer id,Integer userId) {
+    //todo must be tested
+    public String exitRoom(Integer id, Integer userId, String username) {
         RoomMember roomMember = roomMemberRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
 
-        //Todo request sender must be the person in the room
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        try {
+            CustomProjectMemberResponse res = restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
+                    CustomProjectMemberResponse.class
+            );
+
+            if (!Objects.equals(res.getMemberId(), roomMember.getMemberId()))
+                throw new UnauthorizedException("you must be a room member");
+
+            //notify admin that member exit the room
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .from(username)
+                    .to(res.getAdminEmail())
+                    .type(NotificationType.ACCEPT_NOTIF)
+                    .build();
+
+
+            rabbitMQMessageProducer.publish(
+                    notificationRequest,
+                    "internal.exchange",
+                    "internal.notification.routing-key"
+            );
+        } catch (Exception e) {
+            throw new UnauthorizedException("you must be a project member");
+        }
+
         roomMemberRepository.delete(roomMember);
         return "member exited!";
     }
 
-    public String removeRoomMember(Integer id,Integer userId) {
+    //todo must be tested
+    public String removeRoomMember(Integer id, Integer userId, String memberEmail) {
         RoomMember roomMember = roomMemberRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
@@ -111,28 +167,51 @@ public class RoomMemberService {
                 instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + roomMember.getRoom().getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
-        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("You must be admin to add a member to specific room");
+        if (Boolean.FALSE.equals(isAdmin))
+            throw new UnauthorizedException("You must be admin to add a member to specific room");
+
+        try {
+            CustomProjectMemberResponse res = restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
+                    CustomProjectMemberResponse.class
+            );
+
+            //notify admin that member exit the room
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .from(res.getAdminEmail())
+                    .to(memberEmail)
+                    .type(NotificationType.ACCEPT_NOTIF)
+                    .build();
+
+
+            rabbitMQMessageProducer.publish(
+                    notificationRequest,
+                    "internal.exchange",
+                    "internal.notification.routing-key"
+            );
+        } catch (Exception e) {
+            throw new UnauthorizedException("you must be a project member");
+        }
 
         roomMemberRepository.delete(roomMember);
 
-        //Todo: send email to member
         return "member removed!";
     }
 
-    public Boolean checkRoomMember(Integer userId){
-
+    public Boolean checkRoomMember(Integer userId, Integer roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("room with id " + roomId + " does not exist"));
         InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
 
-
-        try{
-            Integer memberId = restTemplate.getForObject(
-                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId,
-                    Integer.class
+        try {
+            CustomProjectMemberResponse res = restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    CustomProjectMemberResponse.class
             );
-            roomMemberRepository.findByMemberId(memberId)
-                    .orElseThrow(()->new NotFoundException("room member with id " + memberId + " does not exist"));
+            roomMemberRepository.findByMemberId(res.getMemberId())
+                    .orElseThrow(() -> new NotFoundException("room member with id " + res.getMemberId() + " does not exist"));
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

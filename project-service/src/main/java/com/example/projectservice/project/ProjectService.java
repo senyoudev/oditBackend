@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -32,12 +34,15 @@ public class ProjectService {
         return projects;
     }
 
-    public Project getProject(Integer id) {
-        //Todo user must be member of this project (private projects)
+    public Project getProject(Integer id,Integer userId) {
         Project project = projectRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("project with id " + id + " does not exist"));
 
+        Optional<ProjectMember> projectMember = projectMemberRepository.findProjectMemberByUserIdAndProject(userId,project);
+
+        //todo check if project is private: version2
+        if(projectMember.isEmpty()) throw new UnauthorizedException("this Project is private, you must be a member to view details");
         List<ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
         project.setMembers(new HashSet<>(members));
 
@@ -74,7 +79,7 @@ public class ProjectService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("project with id " + id + " does not exist"));
 
-        if(userId != project.getAdminId()) new UnauthorizedException("You are not permited to do this operation");
+        if(!Objects.equals(userId, project.getAdminId())) throw new UnauthorizedException("You are not permited to do this operation");
 
         try {
             project.setTitle(request.title());
@@ -95,7 +100,7 @@ public class ProjectService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("project with id " + id + " does not exist"));
 
-        if(userId != project.getAdminId()) new UnauthorizedException("You are not permited to do this operation");
+        if(!Objects.equals(userId, project.getAdminId())) throw new UnauthorizedException("You are not permited to do this operation");
 
         projectRepository.delete(project);
         return "project deleted!";
@@ -107,7 +112,7 @@ public class ProjectService {
                 .orElseThrow(() -> new NotFoundException("project with id " + projectId + " does not exist"));
 
 
-        return userId == project.getAdminId();
+        return Objects.equals(userId, project.getAdminId());
     }
 
     public List<Project> getProjects() {
