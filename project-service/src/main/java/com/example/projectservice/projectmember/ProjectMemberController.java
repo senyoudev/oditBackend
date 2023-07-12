@@ -2,6 +2,7 @@ package com.example.projectservice.projectmember;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import com.example.helpers.projects.CustomProjectMemberResponse;
 
 import java.util.List;
 
@@ -21,6 +22,11 @@ public class ProjectMemberController {
         return projectMemberService.getProjectMember(id,userId);
     }
 
+    //Just for testing
+    @PostMapping
+    public void addUserToProject(@RequestBody ProjectMemberCreationRequest request){
+        projectMemberService.addUserToProject(request);
+    }
     @PutMapping(value = "{id}")
     public ProjectMember updateProjectMember(@RequestParam Integer adminId,@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
         return projectMemberService.updateProjectMember(id,adminId,request);
@@ -38,7 +44,7 @@ public class ProjectMemberController {
     }
 
     @GetMapping("/getMemberId")
-    public Integer getMemberId(@RequestParam Integer userId) {
-        return projectMemberService.getMemberId(userId);
+    public CustomProjectMemberResponse getMemberId(@RequestParam Integer userId,@RequestParam Integer projectId) {
+        return projectMemberService.getMemberId(userId,projectId);
     }
 }

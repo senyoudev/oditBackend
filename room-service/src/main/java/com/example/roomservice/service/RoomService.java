@@ -3,6 +3,7 @@ package com.example.roomservice.service;
 import com.example.helpers.exceptions.BadRequestException;
 import com.example.helpers.exceptions.NotFoundException;
 import com.example.helpers.exceptions.UnauthorizedException;
+import com.example.helpers.projects.CustomProjectMemberResponse;
 import com.example.roomservice.Dto.RoomCreationRequest;
 import com.example.roomservice.Dto.RoomUpdateRequest;
 import com.example.roomservice.entity.Room;
@@ -26,22 +27,41 @@ public class RoomService {
     private final RestTemplate restTemplate;
     private EurekaClient discoveryClient;
 
-    public List<Room> getProjectRooms(Integer projectId,Integer userId) {
+    public List<Room> getProjectRooms(Integer projectId, Integer userId) {
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+
+        try {
+            restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + projectId,
+                    CustomProjectMemberResponse.class
+            );
+
+        } catch (Exception e) {
+            throw new UnauthorizedException("you must be a project member to view rooms");
+        }
+
         List<Room> rooms = roomRepository.findByProjectId(projectId);
-        //Todo only project members can view project rooms
         for (Room room : rooms) {
             Set<RoomMember> members = roomMemberRepository.findRoomMembersByRoom(room);
             room.setMembers(members);
         }
-
         return rooms;
     }
 
-    public Room getRoom(Integer userId,Integer id) {
-        //Todo only project members can view project room
+    public Room getRoom(Integer id,Integer userId) {
         Room room = roomRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room with id " + id + " does not exist"));
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        try {
+            restTemplate.getForObject(
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    CustomProjectMemberResponse.class
+            );
+        } catch (Exception e) {
+            throw new UnauthorizedException("you must be a project member to view rooms");
+        }
+
         Set<RoomMember> members = roomMemberRepository.findRoomMembersByRoom(room);
         room.setMembers(members);
         return room;
@@ -53,7 +73,7 @@ public class RoomService {
                 instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + request.getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
-        if (!isAdmin) throw new UnauthorizedException("Your must be admin to create room");
+        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("you must be admin to create room");
         try {
             Room room = Room.builder()
                     .projectId(request.getProjectId())
@@ -64,7 +84,7 @@ public class RoomService {
             roomRepository.saveAndFlush(room);
             return room;
         } catch (Exception e) {
-            throw new BadRequestException("Your request is not correct");
+            throw new BadRequestException("your request is not correct");
         }
     }
 
@@ -78,14 +98,14 @@ public class RoomService {
                 instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + room.getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
-        if (!isAdmin) throw new UnauthorizedException("Your must be admin to update room");
+        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("you must be admin to update room");
         try {
             room.setName(request.getName());
             room.setDescription(request.getDescription());
 
             return room;
         } catch (Exception e) {
-            throw new BadRequestException("Your request is not correct");
+            throw new BadRequestException("your request is not correct");
         }
     }
 
@@ -98,7 +118,7 @@ public class RoomService {
                 instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + room.getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
-        if (!isAdmin) throw new UnauthorizedException("Your must be admin to delete room");
+        if (Boolean.FALSE.equals(isAdmin)) throw new UnauthorizedException("you must be admin to delete room");
         roomRepository.delete(room);
         return "room deleted!";
     }

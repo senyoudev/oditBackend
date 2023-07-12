@@ -18,8 +18,8 @@ public class ProjectController {
     }
 
     @GetMapping(value = "{id}")
-    public Project getProject(@PathVariable("id") Integer id) {
-        return projectService.getProject(id);
+    public Project getProject(@PathVariable("id") Integer id,@RequestParam Integer userId) {
+        return projectService.getProject(id,userId);
     }
 
     @PostMapping

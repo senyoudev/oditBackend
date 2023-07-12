@@ -1,4 +1,4 @@
-package com.example.roomservice.Dto;
+package com.example.helpers.projects;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomMemberCreationRequest {
-    private Integer roomId;
+public class CustomProjectMemberResponse {
     private Integer memberId;
-    private String memberEmail;
+    private String adminEmail;
 }
-
