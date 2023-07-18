@@ -6,6 +6,9 @@ import com.example.roomservice.entity.RoomMember;
 import com.example.roomservice.service.RoomMemberService;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -80,6 +85,7 @@ class RoomMemberRepositoryTest {
 
     }
 
+
     @Test
     void ItShouldfindMembersByRoomId() {
         // Given
@@ -101,7 +107,24 @@ class RoomMemberRepositoryTest {
     @Test
     @Disabled
     void findRoomMembersByRoom() {
-    }
+        // Given
+        Room room = Room.builder().id(roomId).projectId(2).name("Room 2").build();
+        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+        Set<RoomMember> expectedMembers = new HashSet<>();
+        RoomMember member1 = RoomMember.builder().id(3).memberId(firstmemberId).room(room).build();
+        expectedMembers.add(member1);
+        when(underTest.findRoomMembersByRoom(room)).thenReturn(expectedMembers);
+
+        // When
+        Set<RoomMember> resultMembers = roomMemberService.getRoomMembers(roomId);
+
+        // Then
+        assertNotNull(resultMembers);
+        assertEquals(expectedMembers, resultMembers);
+        }
+
+
 
     @Test
     @Disabled
