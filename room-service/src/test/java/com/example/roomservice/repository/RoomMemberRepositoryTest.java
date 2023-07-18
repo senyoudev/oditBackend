@@ -1,5 +1,7 @@
 package com.example.roomservice.repository;
 
+import com.example.amqp.RabbitMQMessageProducer;
+import com.example.helpers.projects.CustomProjectMemberResponse;
 import com.example.roomservice.Dto.RoomMemberCreationRequest;
 import com.example.roomservice.entity.Room;
 import com.example.roomservice.entity.RoomMember;
@@ -17,6 +19,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Array;
@@ -46,6 +49,8 @@ class RoomMemberRepositoryTest {
     private RestTemplate restTemplate;
     @Mock
     private EurekaClient discoveryClient;
+    @Mock
+    private RabbitMQMessageProducer rabbitMQMessageProducerMock;
 
     Integer userId = 1;
     Integer roomId = 123;
@@ -57,12 +62,19 @@ class RoomMemberRepositoryTest {
         //create a room
         Room room = Room.builder().id(roomId).name("Room 1").projectId(1).build();
         when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        CustomProjectMemberResponse customProjectMemberResponse = CustomProjectMemberResponse.builder()
+                .adminEmail("admin@example.com") // Replace this with a valid admin email
+                .build();
+
+        when(restTemplate.getForObject(anyString(), eq(CustomProjectMemberResponse.class))).thenReturn(customProjectMemberResponse);
 
         // Mock check if a user is a member using the RestTemplate
         InstanceInfo instance = mock(InstanceInfo.class);
         when(instance.getHomePageUrl()).thenReturn("http://localhost:8083");
         when(discoveryClient.getNextServerFromEureka("PROJECT", false)).thenReturn(instance);
         when(restTemplate.getForObject(anyString(), eq(Boolean.class))).thenReturn(true);
+
+        ReflectionTestUtils.setField(roomMemberService, "rabbitMQMessageProducer", rabbitMQMessageProducerMock);
 
         //add 2 members to a room
         RoomMemberCreationRequest firstroomMemberCreationRequest = RoomMemberCreationRequest
@@ -97,7 +109,7 @@ class RoomMemberRepositoryTest {
 
         // When
         when(underTest.findByRoomId(roomId)).thenReturn(expectedMembers);
-        Set<RoomMember> resultMembers = roomMemberService.getRoomMembers(roomId);
+        Set<RoomMember> resultMembers = roomMemberService.getRoomMembers(roomId,userId);
 
         // Then
         assertNotNull(resultMembers);
@@ -117,7 +129,7 @@ class RoomMemberRepositoryTest {
         when(underTest.findRoomMembersByRoom(room)).thenReturn(expectedMembers);
 
         // When
-        Set<RoomMember> resultMembers = roomMemberService.getRoomMembers(roomId);
+        Set<RoomMember> resultMembers = roomMemberService.getRoomMembers(roomId,userId);
 
         // Then
         assertNotNull(resultMembers);

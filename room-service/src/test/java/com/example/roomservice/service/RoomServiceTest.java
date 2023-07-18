@@ -1,5 +1,6 @@
 package com.example.roomservice.service;
 
+import com.example.helpers.projects.CustomProjectMemberResponse;
 import com.example.roomservice.entity.Room;
 import com.example.roomservice.repository.RoomMemberRepository;
 import com.example.roomservice.repository.RoomRepository;
@@ -45,7 +46,15 @@ class RoomServiceTest {
 
     @BeforeEach
     void setUp() {
+        InstanceInfo instance = mock(InstanceInfo.class);
+        when(instance.getHomePageUrl()).thenReturn("http://localhost:8083");
+        when(discoveryClient.getNextServerFromEureka("PROJECT", false)).thenReturn(instance);
+        CustomProjectMemberResponse customProjectMemberResponse = CustomProjectMemberResponse.builder()
+                .adminEmail("admin@example.com")
+                .build();
 
+        when(restTemplate.getForObject(anyString(), eq(CustomProjectMemberResponse.class)))
+                .thenReturn(customProjectMemberResponse);
     }
     @Test
     void getProjectRooms() {
@@ -58,6 +67,7 @@ class RoomServiceTest {
                 .description("Description 1")
                 .build());
         when(roomRepository.findByProjectId(projectId)).thenReturn(expectedRooms);
+
 
         // When
         List<Room> resultRooms = roomService.getProjectRooms(projectId, userId);

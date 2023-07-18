@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -32,7 +32,7 @@ public class InviteService {
         Invite invite = inviteRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("invitation with id "+id+" does not exist"));
 
-        if(userId != invite.getProject().getAdminId() && username != invite.getUserEmail()){
+        if(!Objects.equals(userId, invite.getProject().getAdminId()) && !Objects.equals(username, invite.getUserEmail())){
             throw new UnauthorizedException("user must be sender or receiver");
         }
         return invite;
@@ -42,7 +42,7 @@ public class InviteService {
         return inviteRepository.findByUserEmail(userEmail);
     }
 
-    public Invite sendInvitation(Integer userId, InvitationCreationRequest request, String username) {
+    public void sendInvitation(Integer userId, InvitationCreationRequest request, String username) {
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new NotFoundException("Project not found"));
@@ -52,13 +52,13 @@ public class InviteService {
             throw new BadRequestException("Invalid Gmail email address");
         }
 
-        if (userId != project.getAdminId()) {
+        if (!Objects.equals(userId, project.getAdminId())) {
             throw new UnauthorizedException("Only project owners can send invitations.");
         }
         if (email.equals(username)) {
             throw new UnauthorizedException("You can't send invitation to your self.");
         }
-        Invite invite = null;
+        Invite invite;
         try {
             invite = Invite.builder()
                     .project(project)
@@ -83,7 +83,6 @@ public class InviteService {
                 "internal.exchange",
                 "internal.notification.routing-key"
         );
-        return invite;
     }
 
     public void acceptInvitation(Integer invitationId, Integer userId, String username) {
@@ -104,7 +103,6 @@ public class InviteService {
                 .type(NotificationType.ACCEPT_NOTIF)
                 .build();
 
-        //Todo remove accepted from invitation model
         //Delete Invitation
         inviteRepository.delete(invitation);
 

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember,Integer> {
     List<ProjectMember> findProjectMembersByProject(Project project);
-    Optional<ProjectMember> findProjectMemberByUserId(Integer id);
+    Optional<ProjectMember> findProjectMemberByUserIdAndProject(Integer id,Project project);
 }

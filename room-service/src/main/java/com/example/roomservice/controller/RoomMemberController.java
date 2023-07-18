@@ -15,8 +15,8 @@ public class RoomMemberController {
     private final RoomMemberService roomMemberService;
 
     @GetMapping
-    public Set<RoomMember> getRoomMembers(@RequestParam Integer roomId) {
-        return roomMemberService.getRoomMembers(roomId);
+    public Set<RoomMember> getRoomMembers(@RequestParam Integer roomId,@RequestParam Integer userId) {
+        return roomMemberService.getRoomMembers(roomId,userId);
     }
 
     @GetMapping(value = "{id}")
@@ -30,17 +30,17 @@ public class RoomMemberController {
     }
 
     @DeleteMapping(value = "{id}")
-    public String exitRoom(@PathVariable("id") Integer id,@RequestParam Integer userId){
-        return roomMemberService.exitRoom(id,userId);
+    public String exitRoom(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestParam String username){
+        return roomMemberService.exitRoom(id,userId,username);
     }
 
     @DeleteMapping(value = "{id}/exit")
-    public String removeRoomMember(@PathVariable("id") Integer id,@RequestParam Integer userId){
-        return roomMemberService.removeRoomMember(id,userId);
+    public String removeRoomMember(@PathVariable("id") Integer id,@RequestParam Integer userId,@RequestParam String memberEmail){
+        return roomMemberService.removeRoomMember(id,userId,memberEmail);
     }
 
     @GetMapping("/checkRoomMember")
-    public Boolean checkRoomMember(@RequestParam Integer userId) {
-        return roomMemberService.checkRoomMember(userId);
+    public Boolean checkRoomMember(@RequestParam Integer userId,@RequestParam Integer roomId) {
+        return roomMemberService.checkRoomMember(userId,roomId);
     }
 }
