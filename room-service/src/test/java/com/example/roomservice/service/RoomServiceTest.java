@@ -1,6 +1,9 @@
 package com.example.roomservice.service;
 
+import com.example.helpers.exceptions.BadRequestException;
+import com.example.helpers.exceptions.UnauthorizedException;
 import com.example.helpers.projects.CustomProjectMemberResponse;
+import com.example.roomservice.Dto.RoomCreationRequest;
 import com.example.roomservice.entity.Room;
 import com.example.roomservice.repository.RoomMemberRepository;
 import com.example.roomservice.repository.RoomRepository;
@@ -21,8 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -49,12 +51,7 @@ class RoomServiceTest {
         InstanceInfo instance = mock(InstanceInfo.class);
         when(instance.getHomePageUrl()).thenReturn("http://localhost:8083");
         when(discoveryClient.getNextServerFromEureka("PROJECT", false)).thenReturn(instance);
-        CustomProjectMemberResponse customProjectMemberResponse = CustomProjectMemberResponse.builder()
-                .adminEmail("admin@example.com")
-                .build();
 
-        when(restTemplate.getForObject(anyString(), eq(CustomProjectMemberResponse.class)))
-                .thenReturn(customProjectMemberResponse);
     }
     @Test
     void getProjectRooms() {
@@ -67,6 +64,13 @@ class RoomServiceTest {
                 .description("Description 1")
                 .build());
         when(roomRepository.findByProjectId(projectId)).thenReturn(expectedRooms);
+
+        CustomProjectMemberResponse customProjectMemberResponse = CustomProjectMemberResponse.builder()
+                .adminEmail("admin@example.com")
+                .build();
+
+        when(restTemplate.getForObject(anyString(), eq(CustomProjectMemberResponse.class)))
+                .thenReturn(customProjectMemberResponse);
 
 
         // When
@@ -83,9 +87,24 @@ class RoomServiceTest {
     }
 
     @Test
-    @Disabled
-    void createRoom() {
+    void createRoom_UnauthorizedUser_ThrowsUnauthorizedException() {
+        // Given
+        Integer projectId = 2;
+        String roomName = "New Room";
+        String roomDescription = "New Description";
+        RoomCreationRequest request = new RoomCreationRequest(projectId, roomName, roomDescription);
+
+        // Simulate an unauthorized user
+       when(restTemplate.getForObject(anyString(), eq(Boolean.class))).thenReturn(false);
+
+        // When/Then
+        assertThrows(UnauthorizedException.class, () -> roomService.createRoom(userId, request));
+
+        // Verify that the roomRepository.saveAndFlush() was not called
+        verify(roomRepository, never()).saveAndFlush(any());
     }
+
+
 
     @Test
     @Disabled
