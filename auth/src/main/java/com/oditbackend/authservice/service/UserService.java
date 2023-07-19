@@ -23,7 +23,7 @@ public class UserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("user with email " + email + " does not exist"));
-        ProfileResponse profile = new ProfileResponse(user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole());
+        ProfileResponse profile = new ProfileResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole());
 
         return profile;
     }

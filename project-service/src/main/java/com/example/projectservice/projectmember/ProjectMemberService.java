@@ -40,14 +40,14 @@ public class ProjectMemberService {
         return member;
     }
 
-    public void addUserToProject(ProjectMemberCreationRequest request) {
+    public void addUserToProject(ProjectMemberCreationRequest request,MemberRole role) {
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new NotFoundException("project with id "+request.projectId()+" does not exist"));
         try {
             ProjectMember member = ProjectMember.builder()
                     .project(project)
                     .userId(request.userId())
-                    .role(MemberRole.MEMBER)
+                    .role(role)
                     .build();
 
             projectMemberRepository.saveAndFlush(member);

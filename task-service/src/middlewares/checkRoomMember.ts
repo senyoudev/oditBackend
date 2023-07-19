@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default asyncHandler(async (req, res, next) => {
   const { userId, roomId } = req.query;
+  const _roomId = req.body.roomId;
 
   const instance = eurekaClient.getInstancesByAppId("ROOM")[0];
 
@@ -12,7 +13,7 @@ export default asyncHandler(async (req, res, next) => {
 
     //data has type boolean
     const { data } = await axios.get(
-      `http://${hostName}:${port.$}/api/v1/room-members/checkRoomMember?roomId=${roomId}&userId=${userId}`
+      `http://${hostName}:${port.$}/api/v1/room-members/checkRoomMember?roomId=${roomId?roomId:_roomId}&userId=${userId}`
     );
 
     if (data) {

@@ -25,7 +25,7 @@ public class ProjectMemberController {
     //Just for testing
     @PostMapping
     public void addUserToProject(@RequestBody ProjectMemberCreationRequest request){
-        projectMemberService.addUserToProject(request);
+        projectMemberService.addUserToProject(request,MemberRole.MEMBER);
     }
     @PutMapping(value = "{id}")
     public ProjectMember updateProjectMember(@RequestParam Integer adminId,@PathVariable("id") Integer id,@RequestBody ProjectMemberUpdateRequest request){
