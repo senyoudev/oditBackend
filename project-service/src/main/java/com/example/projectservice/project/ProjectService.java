@@ -3,10 +3,7 @@ package com.example.projectservice.project;
 import com.example.helpers.exceptions.BadRequestException;
 import com.example.helpers.exceptions.NotFoundException;
 import com.example.helpers.exceptions.UnauthorizedException;
-import com.example.projectservice.projectmember.ProjectMember;
-import com.example.projectservice.projectmember.ProjectMemberCreationRequest;
-import com.example.projectservice.projectmember.ProjectMemberRepository;
-import com.example.projectservice.projectmember.ProjectMemberService;
+import com.example.projectservice.projectmember.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +59,7 @@ public class ProjectService {
 
             //Add admin to project members
             ProjectMemberCreationRequest _request = new ProjectMemberCreationRequest(project.getId(),userId);
-            projectMemberService.addUserToProject(_request);
+            projectMemberService.addUserToProject(_request,MemberRole.ADMIN);
 
             List<ProjectMember> members = projectMemberRepository.findProjectMembersByProject(project);
             project.setMembers(new HashSet<>(members));

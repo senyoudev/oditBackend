@@ -8,6 +8,7 @@ import com.example.helpers.notifications.NotificationRequest;
 import com.example.helpers.notifications.NotificationType;
 import com.example.projectservice.project.Project;
 import com.example.projectservice.project.ProjectRepository;
+import com.example.projectservice.projectmember.MemberRole;
 import com.example.projectservice.projectmember.ProjectMemberCreationRequest;
 import com.example.projectservice.projectmember.ProjectMemberService;
 import lombok.AllArgsConstructor;
@@ -93,7 +94,7 @@ public class InviteService {
 
         //Add user to project
         ProjectMemberCreationRequest request = new ProjectMemberCreationRequest(invitation.getProject().getId(), userId);
-        projectMemberService.addUserToProject(request);
+        projectMemberService.addUserToProject(request, MemberRole.MEMBER);
 
 
         //send an accept notification to the admin

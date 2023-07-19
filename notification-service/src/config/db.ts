@@ -7,7 +7,7 @@ export const connection = createConnection({
     host: "localhost",
     port:  5433, // default port of postgres
     username: "postgres", // our created username, you can have your own user name
-    password: "password", // our created username, you can have your own password
+    password: "yassine1", // our created username, you can have your own password
     database: "notifications", // our created database name, you can have your own
     entities: [
                Notification
