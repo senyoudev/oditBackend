@@ -22,17 +22,22 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  isDone:{
-    type:Boolean,
-    default:false
+  isDone: {
+    type: Boolean,
+    default: false,
   },
   assignedMembers: {
-    type:[Number],
-    default:[]
+    type: [Number],
+    default: [],
   },
+  comments: [
+    {
+      memberId: Number,
+      content: String,
+    },
+  ],
 });
 
-const Task: Model<ITask> = model<ITask>('Task', taskSchema);
-
+const Task: Model<ITask> = model<ITask>("Task", taskSchema);
 
 export default Task;

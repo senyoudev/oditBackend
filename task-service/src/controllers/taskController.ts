@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import Task from "../models/Task";
 import Section from "../models/Section";
 import { ITask } from "../interfaces/Task";
+import mongoose from "mongoose";
 
 // @desc    Get a task By Id
 // @route   GET /api/v1/tasks/:taskId
@@ -160,6 +161,46 @@ const markTaskDone = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(201).json(task);
 });
+// @desc    Add comment in task
+// @route   Put /api/v1/tasks/:taskId/comment
+// @access  Private
+const addComment = asyncHandler(async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+  const { userId } = req.query;
+  const { content } = req.body;
+  const task: ITask | null = await Task.findByIdAndUpdate(taskId, {
+    $push: { comments: { memberId: userId, content } },
+  });
+
+  if (!task) {
+    res.status(404);
+    throw new Error("Task not found");
+  }
+
+  res.status(201).json(task);
+});
+// @desc    Add comment in task
+// @route   Put /api/v1/tasks/:taskId/comment
+// @access  Private
+const deleteComment = asyncHandler(async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+  const { commentId } = req.body;
+  const task: ITask | null = await Task.findByIdAndUpdate(
+    taskId,
+    {
+      $pull: { comments: { _id: commentId } },
+    },
+    { new: true }
+  );
+
+  if (!task) {
+    res.status(404);
+    throw new Error("Task not found");
+  }
+
+  res.status(201).json(task);
+});
+
 export {
   createTask,
   updateTask,
@@ -167,4 +208,6 @@ export {
   deleteTask,
   markTaskDone,
   assignTask,
+  addComment,
+  deleteComment,
 };

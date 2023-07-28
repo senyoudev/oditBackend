@@ -7,6 +7,7 @@ export interface ITask {
   description: string;
   startDate: Date;
   deadline: Date;
-  isDone: Boolean;
+  isDone: boolean;
   assignedMembers: number[];
+  comments: Array<{ _id:mongoose.Types.ObjectId,memberId: number; content: string }>;
 }
