@@ -5,6 +5,7 @@ import com.example.helpers.exceptions.NotFoundException;
 import com.oditbackend.authservice.Dto.*;
 import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.repository.UserRepository;
+import jakarta.ws.rs.InternalServerErrorException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -85,7 +86,7 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("user with email " + email + " does not exist"));
 
-        //Todo: password validation
+        validatePassword(request.getPassword());
         try{
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
@@ -97,6 +98,28 @@ public class UserService {
         AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .message("password updated")
+                .build();
+        return authenticationResponse;
+    }
+
+    public AuthenticationResponse updatePicture(String authorization, String pictureUrl) {
+        String token = authorization.substring(7);
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User with email " + email + " does not exist"));
+
+        try {
+            user.setPicture(pictureUrl);
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Failed to update picture");
+        }
+
+        var jwtToken = jwtService.generateToken(user);
+
+        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .message("Picture updated")
                 .build();
         return authenticationResponse;
     }
@@ -113,5 +136,31 @@ public class UserService {
 
     private boolean isValidEmail(String email) {
         return email.matches("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$");
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new BadRequestException("Password must be at least 8 characters long.");
+        }
+
+        // Check for at least one uppercase letter
+        if (!password.matches(".*[A-Z].*")) {
+            throw new BadRequestException("Password must contain at least one uppercase letter.");
+        }
+
+        // Check for at least one lowercase letter
+        if (!password.matches(".*[a-z].*")) {
+            throw new BadRequestException("Password must contain at least one lowercase letter.");
+        }
+
+        // Check for at least one digit
+        if (!password.matches(".*\\d.*")) {
+            throw new BadRequestException("Password must contain at least one digit.");
+        }
+
+        // Check for at least one special character
+        if (!password.matches(".*[!@#$%^&*()].*")) {
+            throw new BadRequestException("Password must contain at least one special character (!@#$%^&*()).");
+        }
     }
 }
