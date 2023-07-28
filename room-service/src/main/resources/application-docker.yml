@@ -1,0 +1,26 @@
+server:
+  port: 8091
+  error:
+    include-message: always
+spring:
+  application:
+    name: room
+  datasource:
+    password: password
+    url: jdbc:postgresql://localhost:5432/rooms
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+Eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
