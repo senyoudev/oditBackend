@@ -1,6 +1,5 @@
 # Spring Boot target directory
-/target/
-*/target/
+/*/target/
 
 # IDE-specific files
 .idea/

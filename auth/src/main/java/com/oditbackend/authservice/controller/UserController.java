@@ -32,6 +32,12 @@ public class UserController {
     public ResponseEntity<AuthenticationResponse> updatePassword(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody PasswordUpdateRequest request){
         return ResponseEntity.ok(service.updatePassword(authorization,request));
     }
+
+
+    @PutMapping(value = "/picture")
+    public ResponseEntity<AuthenticationResponse> updatePicture(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization, @RequestBody PictureUpdateRequest request) {
+        return ResponseEntity.ok(service.updatePicture(authorization, request.getPictureUrl()));
+    }
     @DeleteMapping
     public ResponseEntity<String> deleteAccount(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization){
         return  ResponseEntity.ok(service.deleteAccount(authorization));
