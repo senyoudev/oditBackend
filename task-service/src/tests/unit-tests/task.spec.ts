@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ITask } from "./../../interfaces/Task";
 import connectDb, { closeConn } from "../../config/connectDb";
 import Task from "../../models/Task";
 
