@@ -134,8 +134,8 @@ services:
       UPLOAD_PRESET: "wafkbnld"
       ZIPKIN_ENDPOINT: "http://zipkin:9411"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server:8761/eureka"
+      HOSTNAME: "docker_upload"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
     networks:
       - spring
     depends_on:
@@ -153,8 +153,8 @@ services:
       NODE_ENV: "docker_development"
       ZIPKIN_ENDPOINT: "http://zipkin:9411"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server:8761/eureka"
+      HOSTNAME: "docker_notification"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       EXCHANGE: "internal.exchange"
       QUEUE: "notification.queue"
       ROUTING_KEY: "internal.notification.routing-key"
@@ -176,8 +176,8 @@ services:
       NODE_ENV: "docker_development"
       ZIPKIN_ENDPOINT: "http://zipkin:9411"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      HOSTNAME: "docker_task"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
 
     networks:
