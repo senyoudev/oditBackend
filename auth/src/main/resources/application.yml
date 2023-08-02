@@ -2,14 +2,13 @@ server:
   port: 8090
   error:
     include-message: always
-
 spring:
   application:
     name: auth
   datasource:
     url: jdbc:postgresql://localhost:5433/clients
     username: postgres
-    password: password
+    password: yassine1
   jpa:
     hibernate:
       ddl-auto: update
