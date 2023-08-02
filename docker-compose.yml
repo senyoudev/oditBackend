@@ -163,6 +163,7 @@ services:
       - postgres
     depends_on:
       - eureka-server
+      - postgres
       - rabbitmq
       - zipkin
 
@@ -182,7 +183,6 @@ services:
 
     networks:
       - spring
-      - postgres
     depends_on:
       - eureka-server
       - rabbitmq
