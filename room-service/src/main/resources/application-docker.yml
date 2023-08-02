@@ -1,5 +1,5 @@
 server:
-  port: 8091
+  port: 8082
   error:
     include-message: always
 spring:
@@ -7,7 +7,7 @@ spring:
     name: room
   datasource:
     password: password
-    url: jdbc:postgresql://localhost:5432/rooms
+    url: jdbc:postgresql://postgres:5432/rooms
     username: postgres
   jpa:
     hibernate:

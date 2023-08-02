@@ -9,12 +9,10 @@ services:
     volumes:
       - postgres:/data/postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - postgres
     restart: unless-stopped
-
-
 
   pgadmin:
     container_name: pgadmin
@@ -48,15 +46,155 @@ services:
     networks:
       - spring
 
+  eureka-server:
+    image: senyoudev/service-discovery:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+
+  apigw:
+    image: senyoudev/apigw:latest
+    container_name: apigw
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+      - eureka-server
+
+  auth:
+    image: senyoudev/auth:latest
+    container_name: auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+      - zipkin
+
+
+  project:
+    image: senyoudev/project-service:latest
+    container_name: project
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+      - zipkin
+
+  room:
+    image: senyoudev/room-service:latest
+    container_name: room-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+      - zipkin
+
+  upload:
+    image: senyoudev/upload:latest
+    container_name: upload
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      NODE_ENV: "development"
+      CLOUD_NAME: "dfwmkpyfy"
+      API_KEY: "846827645565756"
+      API_SECRET: "ACMbZRBlpW5BiNzmNIo7tQlyiG8"
+      UPLOAD_PRESET: "wafkbnld"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411"
+      EUREKA_PORT: "8761"
+      HOSTNAME: "docker"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server:8761/eureka"
+    networks:
+      - spring
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin
+
+  notification:
+    image: senyoudev/notification:latest
+    container_name: notification
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      NODE_ENV: "docker_development"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411"
+      EUREKA_PORT: "8761"
+      HOSTNAME: "docker"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server:8761/eureka"
+      EXCHANGE: "internal.exchange"
+      QUEUE: "notification.queue"
+      ROUTING_KEY: "internal.notification.routing-key"
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin
+
+  task:
+    image: senyoudev/task:latest
+    container_name: task
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: "3002"
+      NODE_ENV: "docker_development"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411"
+      EUREKA_PORT: "8761"
+      HOSTNAME: "docker"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
+
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin
+
 networks:
   postgres:
     driver: bridge
   spring:
     driver: bridge
-  node:
-    driver: bridge
+
 
 volumes:
   postgres:
-  mongo:
   pgadmin:
