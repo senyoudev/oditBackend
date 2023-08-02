@@ -30,6 +30,7 @@ public class User implements UserDetails {
     private String lastName;
     @Column(nullable = false)
     private String email;
+    @Column(nullable = true, columnDefinition = "VARCHAR(255) DEFAULT 'https://res.cloudinary.com/senyou/image/upload/v1690991340/png-transparent-default-profile-united-states-computer-icons-desktop-free-high-quality-person-icon-miscellaneous-silhouette-symbol-thumbnail_nj2rdm.png'")
     private String picture;
     @Column(nullable = false)
     private String password;
