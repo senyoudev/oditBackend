@@ -49,9 +49,20 @@ spring:
             - Path=/api/v1/notifications/**
           filters:
             - AuthenticationFilter
+        - id: feedback
+          uri: lb://feedback
+          predicates:
+            - Path=/api/v1/feedbacks/**,/api/v1/questions/**
+          filters:
+            - AuthenticationFilter
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans

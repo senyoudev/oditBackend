@@ -24,7 +24,7 @@ spring:
       notification: notification.queue
     routing-keys:
       internal-notification: internal.notification.routing-key
-
+    host: rabbitmq
 Eureka:
   client:
     service-url:
@@ -37,3 +37,8 @@ springdoc:
     enabled: true
     persist-authorization: true
   enable-spring-security: true
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
