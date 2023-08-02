@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres:/data/postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - postgres
     restart: unless-stopped
@@ -178,6 +178,26 @@ services:
       ZIPKIN_ENDPOINT: "http://zipkin:9411"
       EUREKA_PORT: "8761"
       HOSTNAME: "docker_task"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
+      CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
+
+    networks:
+      - spring
+    depends_on:
+      - eureka-server
+      - rabbitmq
+      - zipkin
+  feedback:
+    image: senyoudev/feedback:latest
+    container_name: feedback
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: "3003"
+      NODE_ENV: "docker_development"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411"
+      EUREKA_PORT: "8761"
+      HOSTNAME: "docker_feedback"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
 
