@@ -5,7 +5,7 @@ import { ISection } from "../interfaces/Section";
 import mongoose from "mongoose";
 
 // @desc    Get room sections
-// @route   POST /api/v1/sections/
+// @route   Get /api/v1/sections
 // @access  Private
 const getRoomSections = asyncHandler(async (req: Request, res: Response) => {
   const { roomId } = req.query;
@@ -15,7 +15,7 @@ const getRoomSections = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc    Get section
-// @route   POST /api/v1/sections/
+// @route   GET /api/v1/sections/:sectionId
 // @access  Private
 const getSection = asyncHandler(async (req: Request, res: Response) => {
   const { sectionId } = req.params;
@@ -32,7 +32,7 @@ const getSection = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc    Create a section
-// @route   POST /api/v1/sections/
+// @route   POST /api/v1/sections
 // @access  Private
 const createSection = asyncHandler(async (req: Request, res: Response) => {
   const { roomId, name } = req.body;
@@ -49,7 +49,7 @@ const createSection = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc    Update a section
-// @route   POST /api/v1/sections/
+// @route   PUT /api/v1/sections/:sectionId
 // @access  Private
 const updateSection = asyncHandler(async (req: Request, res: Response) => {
   const { name } = req.body;
@@ -76,7 +76,7 @@ const updateSection = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc    Delete a section
-// @route   POST /api/v1/sections/
+// @route   DELETE /api/v1/sections/:sectionId
 // @access  Private
 const deleteSection = asyncHandler(async (req: Request, res: Response) => {
   const { sectionId } = req.params;

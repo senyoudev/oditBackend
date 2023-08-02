@@ -11,11 +11,11 @@ const exchange = process.env.EXCHANGE || "internal.exchange";
 const queue = process.env.QUEUE || "notification.queue";
 const routingKey =
   process.env.ROUTING_KEY || "internal.notification.routing-key";
-
+const rabbitMQHost = process.env.RABBITMQ_HOST || "localhost"
 const startConsumer = async () => {
   try {
     // Connect to RabbitMQ server
-    const connection = await amqp.connect("amqp://localhost");
+    const connection = await amqp.connect(`amqp://${rabbitMQHost}`);
     const channel = await connection.createChannel();
 
     await channel.assertExchange(exchange, "topic", { durable: true })
