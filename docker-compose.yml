@@ -134,7 +134,7 @@ services:
       UPLOAD_PRESET: "wafkbnld"
       ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker_upload"
+      HOSTNAME: "upload"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
     networks:
       - spring
@@ -153,7 +153,7 @@ services:
       NODE_ENV: "docker_development"
       ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker_notification"
+      HOSTNAME: "notification"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       RABBITMQ_HOST: "rabbitmq"
       EXCHANGE: "internal.exchange"
@@ -178,7 +178,7 @@ services:
       NODE_ENV: "docker_development"
       ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker_task"
+      HOSTNAME: "task"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
 
@@ -198,7 +198,7 @@ services:
       NODE_ENV: "docker_development"
       ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
       EUREKA_PORT: "8761"
-      HOSTNAME: "docker_feedback"
+      HOSTNAME: "feedback"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
       CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
 
