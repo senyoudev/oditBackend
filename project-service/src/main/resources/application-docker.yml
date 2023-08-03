@@ -25,6 +25,7 @@ spring:
     routing-keys:
       internal-notification: internal.notification.routing-key
     host: rabbitmq
+    port: 5672
 Eureka:
   client:
     service-url:
