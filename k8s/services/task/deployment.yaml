@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task
+  labels:
+    app: task
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: task
+      labels:
+        app: task
+    spec:
+      containers:
+        - name: task
+          image: senyoudev/task:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3002
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+          envFrom:
+            - configMapRef:
+                name: task-config
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: task

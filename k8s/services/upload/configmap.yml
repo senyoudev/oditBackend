@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upload-config
+data:
+  PORT: "3000"
+  NODE_ENV: "development"
+  CLOUD_NAME: "dfwmkpyfy"
+  API_KEY: "846827645565756"
+  API_SECRET: "ACMbZRBlpW5BiNzmNIo7tQlyiG8"
+  UPLOAD_PRESET: "wafkbnld"
+  ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+  HOSTNAME: "upload"

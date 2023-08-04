@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upload
+  labels:
+    app: upload
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: upload
+      labels:
+        app: upload
+    spec:
+      containers:
+        - name: upload
+          image: senyoudev/upload:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+          envFrom:
+            - configMapRef:
+                name: upload-config
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: upload

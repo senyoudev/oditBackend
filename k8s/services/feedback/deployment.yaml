@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feedback
+  labels:
+    app: feedback
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: feedback
+      labels:
+        app: feedback
+    spec:
+      containers:
+        - name: feedback
+          image: senyoudev/feedback:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3003
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+          envFrom:
+            - configMapRef:
+                name: feedback-config
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: feedback

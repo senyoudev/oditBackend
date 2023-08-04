@@ -159,6 +159,7 @@ services:
       EXCHANGE: "internal.exchange"
       QUEUE: "notification.queue"
       ROUTING_KEY: "internal.notification.routing-key"
+      SPRING_HOSTNAME: "postgres"
     networks:
       - spring
       - postgres

@@ -13,6 +13,7 @@ import connectDb from "./config/connectDb";
 connectDb();
 const app = express();
 const port = process.env.PORT || 4000;
+const EUREKA_ENABLED = process.env.EUREKA_ENABLED || false;
 
 app
   .use(
@@ -24,16 +25,15 @@ app
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
   .use("/api/v1", baseRoutes)
-  .use(errorHandler)
+  .use(errorHandler);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Upload Api Is running");
 });
 
-
 app.listen(port, async () => {
   console.log(
     `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
   );
-  await startEureka();
+  if (EUREKA_ENABLED) await startEureka();
 });

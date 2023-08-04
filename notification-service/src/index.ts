@@ -5,14 +5,14 @@ import bodyParser from "body-parser";
 import router from "./notification/notification.router";
 import { startEureka } from "./eureka";
 import path from "path";
-import "./config/db"
+import "./config/db";
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, ".env") });
 import { startConsumer } from "./rabbitMq/notificationConsumer";
 
 const app = express();
 const port = process.env.PORT || 4000;
-
+const EUREKA_ENABLED = process.env.EUREKA_ENABLED || false;
 app
   .use(
     cors({
@@ -32,7 +32,6 @@ app.listen(port, async () => {
   console.log(
     `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
   );
-  await startEureka();
+  if (EUREKA_ENABLED) await startEureka();
   await startConsumer();
-  
 });

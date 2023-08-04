@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project
+  labels:
+    app: project
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: project
+      labels:
+        app: project
+    spec:
+      containers:
+        - name: project
+          image: senyoudev/project-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: project

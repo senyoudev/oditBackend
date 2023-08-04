@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-config
+data:
+  PORT: "3002"
+  NODE_ENV: "docker_development"
+  ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+  HOSTNAME: "task"
+  CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
