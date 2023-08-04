@@ -20,6 +20,7 @@ spring:
     show-sql: true
   rabbitmq:
     host: rabbitmq
+    port: 5672
 
 application:
   security:
