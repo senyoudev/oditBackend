@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: room
+  labels:
+    app: room
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: room
+      labels:
+        app: room
+    spec:
+      containers:
+        - name: room
+          image: senyoudev/room-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: room

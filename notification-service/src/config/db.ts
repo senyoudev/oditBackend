@@ -1,21 +1,20 @@
-import {createConnection} from "typeorm";
-import {Notification} from "./Notification"
+import { createConnection } from "typeorm";
+import { Notification } from "./Notification";
 
+const SPRING_HOSTNAME = process.env.SPRING_HOSTNAME || "localhost";
 
 export const connection = createConnection({
-    type: "postgres", 
-    host: "localhost",
-    port:  5433, // default port of postgres
-    username: "postgres", // our created username, you can have your own user name
-    password: "yassine1", // our created username, you can have your own password
-    database: "notifications", // our created database name, you can have your own
-    entities: [
-               Notification
-    ],
-    synchronize: true,
-    logging: false
+  type: "postgres",
+  host: SPRING_HOSTNAME,
+  port: 5432, // default port of postgres
+  username: "postgres", // our created username, you can have your own user name
+  password: "password", // our created username, you can have your own password
+  database: "notifications", // our created database name, you can have your own
+  entities: [Notification],
+  synchronize: true,
+  logging: false,
 })
-.then(() => {
+  .then(() => {
     console.log("Database connection established");
     // Start your application
   })
