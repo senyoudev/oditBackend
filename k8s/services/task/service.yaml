@@ -8,4 +8,3 @@ spec:
   ports:
     - port: 80
       targetPort: 3002
-  type: LoadBalancer

@@ -1,18 +1,106 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: nginx
 spec:
-  ingressClassName: nginx-example
   rules:
     - http:
         paths:
-          - path: /auth
+          - path: /api/v1/auth
             pathType: Prefix
             backend:
               service:
                 name: auth
+                port:
+                  number: 80
+          - path: /api/v1/users
+            pathType: Prefix
+            backend:
+              service:
+                name: auth
+                port:
+                  number: 80
+          - path: /api/v1/projects
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 80
+          - path: /api/v1/projectmembers
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 80
+          - path: /api/v1/invitations
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 80
+          - path: /api/v1/admin/projects
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 80
+          - path: /api/v1/rooms
+            pathType: Prefix
+            backend:
+              service:
+                name: room
+                port:
+                  number: 80
+          - path: /api/v1/room-members
+            pathType: Prefix
+            backend:
+              service:
+                name: room
+                port:
+                  number: 80
+          - path: /api/v1/tasks
+            pathType: Prefix
+            backend:
+              service:
+                name: task
+                port:
+                  number: 80
+          - path: /api/v1/sections
+            pathType: Prefix
+            backend:
+              service:
+                name: task
+                port:
+                  number: 80
+          - path: /api/v1/files
+            pathType: Prefix
+            backend:
+              service:
+                name: upload
+                port:
+                  number: 80
+          - path: /api/v1/notifications
+            pathType: Prefix
+            backend:
+              service:
+                name: notification
+                port:
+                  number: 80
+          - path: /api/v1/feedbacks
+            pathType: Prefix
+            backend:
+              service:
+                name: feedback
+                port:
+                  number: 80
+          - path: /api/v1/questions
+            pathType: Prefix
+            backend:
+              service:
+                name: feedback
                 port:
                   number: 80
