@@ -1,10 +1,9 @@
 package com.oditbackend.apigw.filter;
 
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
+import com.example.helpers.exceptions.UnauthorizedException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -12,7 +11,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
-import com.example.helpers.exceptions.UnauthorizedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,15 +18,12 @@ import java.net.URISyntaxException;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-    @Autowired
-    private RestTemplate template;
+    private RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired
-    private EurekaClient discoveryClient;
-
-    public AuthenticationFilter(RestTemplate restTemplate) {
+    public AuthenticationFilter() {
         super(Config.class);
     }
 
@@ -73,8 +68,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     public TokenValidationResponse validateToken(String token) {
         try {
-            InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
-            TokenValidationResponse res = template.getForObject(instance.getHomePageUrl() + "/api/v1/auth/validate?token=" + token, TokenValidationResponse.class);
+            TokenValidationResponse res = restTemplate.getForObject("http://auth/api/v1/auth/validate?token=" + token, TokenValidationResponse.class);
             return res;
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -84,8 +78,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     public Boolean isTokenValidAsAdmin(String token) {
         try {
-            InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
-            Boolean res = template.getForObject(instance.getHomePageUrl() + "/api/v1/auth/validate-admin?token=" + token, Boolean.class);
+            //InstanceInfo instance = discoveryClient.getNextServerFromEureka("AUTH", false);
+            Boolean res = restTemplate.getForObject("http://auth/api/v1/auth/validate-admin?token=" + token, Boolean.class);
             return res;
         } catch (Exception e) {
             throw new UnauthorizedException("Unauthorized access to admin resource");

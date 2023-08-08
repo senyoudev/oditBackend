@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw
+  labels:
+    app: apigw
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: apigw
+      labels:
+        app: apigw
+    spec:
+      containers:
+        - name: apigw
+          image: senyoudev/apigw:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: apigw

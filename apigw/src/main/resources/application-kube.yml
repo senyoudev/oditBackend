@@ -1,0 +1,70 @@
+server:
+  port: 8083
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: Auth
+          uri: lb://AUTH
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: users
+          uri: lb://AUTH
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - AuthenticationFilter
+        - id: project
+          uri: lb://project
+          predicates:
+            - Path=/api/v1/projects/**, /api/v1/projectmembers/**, /api/v1/invitations/**,/api/v1/admin/Projects/**
+          filters:
+            - AuthenticationFilter
+        - id: room
+          uri: lb://room
+          predicates:
+            - Path=/api/v1/rooms/**, /api/v1/room-members/**
+          filters:
+            - AuthenticationFilter
+        - id: task
+          uri: lb://task
+          predicates:
+            - Path=/api/v1/tasks/**,/api/v1/sections/**
+          filters:
+            - AuthenticationFilter
+        - id: upload
+          uri: lb://upload
+          predicates:
+            - Path=/api/v1/files/**
+          filters:
+            - AuthenticationFilter
+        - id: notification
+          uri: lb://notification
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - AuthenticationFilter
+        - id: feedback
+          uri: lb://feedback
+          predicates:
+            - Path=/api/v1/feedbacks/**,/api/v1/questions/**
+          filters:
+            - AuthenticationFilter
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+Eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: false
