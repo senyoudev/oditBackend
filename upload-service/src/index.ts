@@ -11,7 +11,6 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const port = process.env.PORT || 4000;
-const EUREKA_ENABLED = process.env.EUREKA_ENABLED || false;
 
 app
   .use(
@@ -36,6 +35,7 @@ app.listen(port, () => {
 });
 
 async function start() {
+    console.log("trying to start")
   eurekaClient.logger.level('debug');
 
   eurekaClient.start((error: any) => {
@@ -48,4 +48,4 @@ async function start() {
   });
 }
 
-if (EUREKA_ENABLED) start().catch(console.error);
+start().catch(console.error);
