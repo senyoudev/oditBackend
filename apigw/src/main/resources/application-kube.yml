@@ -7,6 +7,9 @@ spring:
   application:
     name: api-gateway
   cloud:
+    kubernetes:
+      discovery:
+        enabled: true
     gateway:
       routes:
         - id: Auth

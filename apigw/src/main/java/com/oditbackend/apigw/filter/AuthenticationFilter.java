@@ -2,8 +2,8 @@ package com.oditbackend.apigw.filter;
 
 
 import com.example.helpers.exceptions.UnauthorizedException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -18,10 +18,15 @@ import java.net.URISyntaxException;
 
 @Component
 @Slf4j
-@AllArgsConstructor
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
+
+
+    public AuthenticationFilter(RestTemplate restTemplate) {
+        super(Config.class);
+    }
 
 
     @Override
