@@ -21,11 +21,8 @@ import java.net.URISyntaxException;
 @AllArgsConstructor
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
-    public AuthenticationFilter() {
-        super(Config.class);
-    }
 
     @Override
     public GatewayFilter apply(Config config) {
