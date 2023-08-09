@@ -6,10 +6,6 @@ server:
 spring:
   application:
     name: api-gateway
-  cloud:
-    kubernetes:
-      discovery:
-        enabled: true
     gateway:
       routes:
         - id: Auth
@@ -70,4 +66,5 @@ Eureka:
       defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
-    enabled: false
+  instance:
+    preferIpAddress: true
