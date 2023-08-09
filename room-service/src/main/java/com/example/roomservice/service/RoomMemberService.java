@@ -12,6 +12,8 @@ import com.example.roomservice.entity.Room;
 import com.example.roomservice.entity.RoomMember;
 import com.example.roomservice.repository.RoomMemberRepository;
 import com.example.roomservice.repository.RoomRepository;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,17 +27,17 @@ public class RoomMemberService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomRepository roomRepository;
     private final RestTemplate restTemplate;
-    //private EurekaClient discoveryClient;
+    private EurekaClient discoveryClient;
     private RabbitMQMessageProducer rabbitMQMessageProducer;
 
     public Set<RoomMember> getRoomMembers(Integer roomId,Integer userId) {
         Room room = roomRepository.findById(roomId)
                  .orElseThrow(()->new NotFoundException("room with id "+roomId+" not found"));
-        //InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
 
         try{
             restTemplate.getForObject(
-                    "http://PROJECT/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
                     CustomProjectMemberResponse.class
             );
         }catch (Exception e){
@@ -47,13 +49,13 @@ public class RoomMemberService {
     }
 
     public RoomMember getRoomMember(Integer id) {
-        //InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         RoomMember member = roomMemberRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
 
         Boolean isMember = restTemplate.getForObject(
-                 "http://PROJECT/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
+                instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + member.getMemberId(),
                 Boolean.class
         );
 
@@ -69,13 +71,13 @@ public class RoomMemberService {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new NotFoundException("room with id " + request.getRoomId() + " does not exist"));
 
-        //InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         Boolean isAdmin = restTemplate.getForObject(
-                "http://PROJECT/api/v1/projects/checkifadmin?projectId=" + room.getProjectId() + "&userId=" + userId,
+                instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + room.getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
         Boolean isMember = restTemplate.getForObject(
-                "http://PROJECT/api/v1/projectmembers/checkifmember?memberId=" + request.getMemberId(),
+                instance.getHomePageUrl() + "/api/v1/projectmembers/checkifmember?memberId=" + request.getMemberId(),
                 Boolean.class
         );
         if (Boolean.FALSE.equals(isAdmin))
@@ -96,7 +98,7 @@ public class RoomMemberService {
         }
 
         CustomProjectMemberResponse res = restTemplate.getForObject(
-                 "http://PROJECT/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
                 CustomProjectMemberResponse.class
         );
 
@@ -123,10 +125,10 @@ public class RoomMemberService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
 
-        //InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         try {
             CustomProjectMemberResponse res = restTemplate.getForObject(
-                    "http://PROJECT/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
                     CustomProjectMemberResponse.class
             );
 
@@ -160,9 +162,9 @@ public class RoomMemberService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("room member with id " + id + " does not exist"));
 
-       // InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
         Boolean isAdmin = restTemplate.getForObject(
-                "http://PROJECT/api/v1/projects/checkifadmin?projectId=" + roomMember.getRoom().getProjectId() + "&userId=" + userId,
+                instance.getHomePageUrl() + "/api/v1/projects/checkifadmin?projectId=" + roomMember.getRoom().getProjectId() + "&userId=" + userId,
                 Boolean.class
         );
         if (Boolean.FALSE.equals(isAdmin))
@@ -170,7 +172,7 @@ public class RoomMemberService {
 
         try {
             CustomProjectMemberResponse res = restTemplate.getForObject(
-                    "http://PROJECT/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + roomMember.getRoom().getProjectId(),
                     CustomProjectMemberResponse.class
             );
 
@@ -199,11 +201,11 @@ public class RoomMemberService {
     public Boolean checkRoomMember(Integer userId, Integer roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("room with id " + roomId + " does not exist"));
-        //InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
+        InstanceInfo instance = discoveryClient.getNextServerFromEureka("PROJECT", false);
 
         try {
             CustomProjectMemberResponse res = restTemplate.getForObject(
-                    "http://PROJECT/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    instance.getHomePageUrl() + "/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
                     CustomProjectMemberResponse.class
             );
             roomMemberRepository.findByMemberId(res.getMemberId())

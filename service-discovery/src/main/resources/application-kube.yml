@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: eureka
+
+server:
+  port: 8761
+  error:
+    include-message: always
+
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
