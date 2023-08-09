@@ -4,7 +4,7 @@ metadata:
   name: feedback-config
 data:
   PORT: "3003"
-  NODE_ENV: "docker_development"
+  NODE_ENV: "production"
   ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
   HOSTNAME: "feedback"
   CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"

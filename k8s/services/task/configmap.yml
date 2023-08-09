@@ -8,3 +8,5 @@ data:
   ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
   HOSTNAME: "task"
   CONNECTION_URL: "mongodb+srv://oditcontact:i5CI1Y7Lg1O0SCTZ@cluster0.vxilctb.mongodb.net"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
+  EUREKA_PORT: "8761"

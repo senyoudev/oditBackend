@@ -12,3 +12,5 @@ data:
   QUEUE: "notification.queue"
   ROUTING_KEY: "internal.notification.routing-key"
   SPRING_HOSTNAME: "postgres"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "eureka-server"
+  EUREKA_PORT: "8761"
