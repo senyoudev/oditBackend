@@ -9,14 +9,14 @@ const ipAddr = '127.0.0.1';
 
 const eurekaClient = new Eureka({
   instance: {
-    app: 'Upload',
+    app: 'upload',
     hostName: hostName,
     ipAddr: ipAddr,
     port: {
-      $: port as number,
+      $: 80,
       '@enabled': true,
     },
-    vipAddress: 'Upload',
+    vipAddress: 'upload',
     dataCenterInfo: {
       '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
       name: 'MyOwn',
@@ -28,7 +28,7 @@ const eurekaClient = new Eureka({
     servicePath: '/eureka/apps/',
     maxRetries: 10,
     requestRetryDelay: 2000,
-    preferIpAddress:true
+    preferIpAddress: true,
   },
 });
 

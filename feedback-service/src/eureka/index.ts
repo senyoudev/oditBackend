@@ -4,7 +4,7 @@ const port = process.env.PORT || 4001;
 const eurekaPort = process.env.EUREKA_PORT || 8761;
 const hostName = process.env.HOSTNAME || "localhost";
 const eurekaHost =
-  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "127.0.0.1";
+  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "eureka-server";
 const ipAddr = "127.0.0.1";
 
 const eurekaClient: any = new Eureka({
@@ -13,7 +13,7 @@ const eurekaClient: any = new Eureka({
     hostName: hostName,
     ipAddr: ipAddr,
     port: {
-      $: port as number,
+      $:80,
       "@enabled": true,
     },
     vipAddress: "Feedback",
@@ -27,7 +27,7 @@ const eurekaClient: any = new Eureka({
     port: eurekaPort as number,
     servicePath: "/eureka/apps/",
     maxRetries: 1,
-    preferIpAddress:true
+    preferIpAddress: true,
   },
 });
 
