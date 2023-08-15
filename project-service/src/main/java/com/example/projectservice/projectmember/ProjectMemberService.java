@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -103,5 +104,9 @@ public class ProjectMemberService {
                 projectMember.getId(),
                 projectMember.getProject().getAdminEmail()
         );
+    }
+    public boolean checkIfAdmin(Integer userId,Integer projectId){
+        Optional<ProjectMember> admin = projectMemberRepository.findByRole(MemberRole.ADMIN);
+        return admin.isPresent();
     }
 }

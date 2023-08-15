@@ -3,7 +3,80 @@ import asyncHandler from "express-async-handler";
 import Task from "../models/Task";
 import Section from "../models/Section";
 import { ITask } from "../interfaces/Task";
-import mongoose from "mongoose";
+import eurekaClient from "../eureka";
+import axios from "axios";
+
+// @desc    Get Project Tasks
+// @route   GET /api/v1/project-tasks/:projectId
+// @access  Private
+const getProjectTasks = asyncHandler(async (req: Request, res: Response) => {
+  const { projectId } = req.params;
+  const { userId } = req.query;
+  const instance = eurekaClient.getInstancesByAppId("ROOM")[0];
+  if (instance) {
+    const { hostName, port } = instance;
+
+    //data has type boolean
+    const { data } = await axios.get(
+      `http://${hostName}:${port.$}/api/v1/rooms?projectId=${projectId}&userId=${userId}`
+    );
+    const tasks = [];
+    for (let i = 0; i < data.length; i++) {
+      const sections = await Section.find({ roomId: data[i].id }).populate({
+        path: "tasks",
+      });
+      console.log(sections);
+      for (let j = 0; j < sections.length; j++) {
+        tasks.push(...sections[j].tasks);
+      }
+    }
+    res.json(tasks);
+  } else {
+    res.status(500).send("Server Error");
+  }
+});
+// @desc    Get User Tasks
+// @route   GET /api/v1/user-tasks/:projectId
+// @access  Private
+const getUserTasks = asyncHandler(async (req: Request, res: Response) => {
+  const { userId } = req.query;
+  const projectInstance = eurekaClient.getInstancesByAppId("PROJECT")[0];
+
+  if (projectInstance) {
+    const { hostName, port } = projectInstance;
+
+    //data has type boolean
+    const { data } = await axios.get(
+      `http://${hostName}:${port.$}/api/v1/projects?userId=${userId}`
+    );
+
+    const roomInstance = eurekaClient.getInstancesByAppId("ROOM")[0];
+    const tasks = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const membersId = await axios.get(
+        `http://${roomInstance.hostName}:${roomInstance.port.$}/api/v1/room-members/memberId?projectId=${data[i].id}&userId=${userId}`
+      );
+
+      const membersIdMapping = membersId.data.map((item: any) => {
+        return item.id;
+      });
+
+      const sections = await Section.find({}).populate({
+        path: "tasks",
+        match: { assignedMembers: { $in: [membersIdMapping] } },
+      });
+      for (let k = 0; k < sections.length; k++) {
+        for (let j = 0; j < sections[k].tasks.length; j++) {
+          tasks.push({ ...sections[k].tasks[j]._doc, projectName: data[i].title });
+        }
+      }
+    }
+    res.send(tasks);
+  } else {
+    res.status(500).send("Server Error");
+  }
+});
 
 // @desc    Get a task By Id
 // @route   GET /api/v1/tasks/:taskId
@@ -37,8 +110,7 @@ const createTask = asyncHandler(async (req: Request, res: Response) => {
   }
 
   if (startDate >= deadline) {
-    res.status(400);
-    throw new Error("Start date must be before the deadline");
+    res.status(400).send({ error: "Start date must be before the deadline" });
   }
 
   const task: ITask = await Task.create({
@@ -71,13 +143,11 @@ const updateTask = asyncHandler(async (req: Request, res: Response) => {
 
   const taskExists = await Task.exists({ _id: taskId });
   if (!taskExists) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
 
   if (startDate >= deadline) {
-    res.status(400);
-    throw new Error("Start date must be before the deadline");
+    res.status(400).send({ error: "Start date must be before the deadline" });
   }
 
   const updatedTask: ITask | null = await Task.findByIdAndUpdate(
@@ -93,8 +163,7 @@ const updateTask = asyncHandler(async (req: Request, res: Response) => {
   );
 
   if (!updatedTask) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
 
   res.status(201).json(updatedTask);
@@ -138,8 +207,7 @@ const assignTask = asyncHandler(async (req: Request, res: Response) => {
   );
 
   if (!updatedTask) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
 
   res.json(updatedTask);
@@ -155,8 +223,7 @@ const markTaskDone = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!task) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
 
   res.status(201).json(task);
@@ -173,8 +240,7 @@ const addComment = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!task) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
 
   res.status(201).json(task);
@@ -194,14 +260,14 @@ const deleteComment = asyncHandler(async (req: Request, res: Response) => {
   );
 
   if (!task) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404).send({ error: "Task not found" });
   }
-
   res.status(201).json(task);
 });
 
 export {
+  getProjectTasks,
+  getUserTasks,
   createTask,
   updateTask,
   getTaskById,

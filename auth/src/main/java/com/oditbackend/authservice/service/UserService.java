@@ -24,7 +24,7 @@ public class UserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("user with email " + email + " does not exist"));
-        ProfileResponse profile = new ProfileResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole());
+        ProfileResponse profile = new ProfileResponse(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(),user.getPicture());
 
         return profile;
     }
@@ -38,6 +38,7 @@ public class UserService {
         try {
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
+            user.setPicture(request.getPicture());
             userRepository.save(user);
         } catch (Exception e) {
             throw new BadRequestException("firstName and lastName are required");
@@ -53,53 +54,28 @@ public class UserService {
         return authenticationResponse;
     }
 
-    public AuthenticationResponse updateEmail(String authorization, EmailUpdateRequest request) {
-        String token = authorization.substring(7);
-        String email = jwtService.extractUsername(token);
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("user with email " + email + " does not exist"));
-
-        try {
-            if (isValidEmail(request.getEmail())) {
-                user.setEmail(request.getEmail());
-                userRepository.save(user);
-                var jwtToken = jwtService.generateToken(user);
-                AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
-                        .accessToken(jwtToken)
-                        .message("email updated ")
-                        .build();
-
-                return authenticationResponse;
-            } else {
-                throw new BadRequestException("Invalid email format.");
-            }
-        } catch (Exception e) {
-            throw new BadRequestException("firstName and lastName are required");
-        }
-
-    }
-
     public AuthenticationResponse updatePassword(String authorization, PasswordUpdateRequest request) {
         String token = authorization.substring(7);
         String email = jwtService.extractUsername(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("user with email " + email + " does not exist"));
 
-        validatePassword(request.getPassword());
-        try{
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        validatePassword(request.getNewPassword());
+        if(passwordEncoder.matches(request.getCurrentPassword(),user.getPassword())){
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             userRepository.save(user);
-        }catch (Exception e){
-            throw new BadRequestException("password is required");
-        }
-        var jwtToken = jwtService.generateToken(user);
+            var jwtToken = jwtService.generateToken(user);
 
-        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .message("password updated")
-                .build();
-        return authenticationResponse;
+            AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                    .accessToken(jwtToken)
+                    .message("password updated")
+                    .build();
+
+            return authenticationResponse;
+        }else{
+            throw new BadRequestException("password incorrect");
+        }
+
     }
 
     public AuthenticationResponse updatePicture(String authorization, String pictureUrl) {
@@ -157,10 +133,14 @@ public class UserService {
         if (!password.matches(".*\\d.*")) {
             throw new BadRequestException("Password must contain at least one digit.");
         }
+    }
 
-        // Check for at least one special character
-        if (!password.matches(".*[!@#$%^&*()].*")) {
-            throw new BadRequestException("Password must contain at least one special character (!@#$%^&*()).");
-        }
+    public UserInfoResponse getUserById(Integer id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("user with id " + id + " does not exist"));
+        UserInfoResponse profile = new UserInfoResponse(user.getFirstName(), user.getLastName(), user.getEmail(),user.getPicture());
+
+        return profile;
     }
 }

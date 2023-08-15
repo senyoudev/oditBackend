@@ -57,6 +57,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.User)
+                .picture("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png")
                 .build();
         User savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);

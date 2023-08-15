@@ -18,14 +18,14 @@ public class UserController {
         return ResponseEntity.ok(service.getProfile(authorization));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<UserInfoResponse> getUserbyId(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(service.getUserById(id));
+    }
+
     @PutMapping(value = "/profile")
     public ResponseEntity<AuthenticationResponse> updateProfile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody ProfileUpdateRequest request){
         return ResponseEntity.ok(service.updateProfile(authorization,request));
-    }
-
-    @PutMapping(value = "/email")
-    public ResponseEntity<AuthenticationResponse> updateEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,@RequestBody EmailUpdateRequest request){
-        return ResponseEntity.ok(service.updateEmail(authorization,request));
     }
 
     @PutMapping(value = "/password")

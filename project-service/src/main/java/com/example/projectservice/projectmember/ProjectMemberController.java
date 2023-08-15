@@ -42,6 +42,10 @@ public class ProjectMemberController {
     public Boolean checkIfMember(@RequestParam Integer memberId) {
         return projectMemberService.checkIfMember(memberId);
     }
+    @GetMapping("/checkIfAdmin")
+    public Boolean checkIfAdmin(@RequestParam Integer userId,@RequestParam Integer projectId) {
+        return projectMemberService.checkIfAdmin(userId,projectId);
+    }
 
     @GetMapping("/getMemberId")
     public CustomProjectMemberResponse getMemberId(@RequestParam Integer userId,@RequestParam Integer projectId) {

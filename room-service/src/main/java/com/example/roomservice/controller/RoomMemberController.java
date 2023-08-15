@@ -24,6 +24,11 @@ public class RoomMemberController {
         return roomMemberService.getRoomMember(id);
     }
 
+    @GetMapping(value = "/memberId")
+    public Set<RoomMember> getRoomsMemberId(@RequestParam Integer projectId, @RequestParam Integer userId) {
+        return roomMemberService.getRoomsMemberId(projectId,userId);
+    }
+
     @PostMapping
     public RoomMember addMemberToRoom(@RequestParam Integer userId,@RequestBody RoomMemberCreationRequest request){
         return roomMemberService.addMemberToRoom(userId,request);
