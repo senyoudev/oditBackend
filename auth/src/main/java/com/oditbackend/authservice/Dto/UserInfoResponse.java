@@ -1,6 +1,5 @@
 package com.oditbackend.authservice.Dto;
 
-import com.oditbackend.authservice.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProfileResponse {
-    private Integer id;
+public class UserInfoResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private Role role;
     private String picture;
 }

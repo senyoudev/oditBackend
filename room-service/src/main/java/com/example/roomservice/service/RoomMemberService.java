@@ -62,6 +62,19 @@ public class RoomMemberService {
 
         return member;
     }
+    public Set<RoomMember> getRoomsMemberId(Integer projectId, Integer userId) {
+        CustomProjectMemberResponse res;
+        try {
+            res = restTemplate.getForObject(
+                    "http://project/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + projectId,
+                    CustomProjectMemberResponse.class
+            );
+        } catch (Exception e) {
+            throw new UnauthorizedException("you must be a project member to view rooms");
+        }
+        Set<RoomMember> members = roomMemberRepository.findAllByMemberId(res.getMemberId());
+        return members;
+    }
 
     public RoomMember addMemberToRoom(Integer userId, RoomMemberCreationRequest request) {
 
@@ -197,12 +210,18 @@ public class RoomMemberService {
                 .orElseThrow(() -> new NotFoundException("room with id " + roomId + " does not exist"));
 
         try {
-            CustomProjectMemberResponse res = restTemplate.getForObject(
-                    "http://project/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
-                    CustomProjectMemberResponse.class
+            Boolean isAdmin = restTemplate.getForObject(
+                    "http://project/api/v1/projectmembers/checkIfAdmin?userId=" + userId + "&projectId=" + room.getProjectId(),
+                    Boolean.class
             );
-            roomMemberRepository.findByMemberId(res.getMemberId())
-                    .orElseThrow(() -> new NotFoundException("room member with id " + res.getMemberId() + " does not exist"));
+            if(!isAdmin){
+                CustomProjectMemberResponse res = restTemplate.getForObject(
+                        "http://project/api/v1/projectmembers/getMemberId?userId=" + userId + "&projectId=" + room.getProjectId(),
+                        CustomProjectMemberResponse.class
+                );
+                roomMemberRepository.findByMemberId(res.getMemberId())
+                        .orElseThrow(() -> new NotFoundException("room member with id " + res.getMemberId() + " does not exist"));
+            }
             return true;
         } catch (Exception e) {
             return false;

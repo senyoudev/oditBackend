@@ -12,4 +12,5 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Integer>
     Set<RoomMember> findRoomMembersByRoom(Room room);
 
     Optional<RoomMember> findByMemberId(Integer memberId);
+    Set<RoomMember> findAllByMemberId(Integer memberId);
 }

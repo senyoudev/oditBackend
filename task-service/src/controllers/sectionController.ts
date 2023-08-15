@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 // @access  Private
 const getRoomSections = asyncHandler(async (req: Request, res: Response) => {
   const { roomId } = req.query;
-  const sections = await Section.find({ roomId });
+  const sections = await Section.find({ roomId }).populate("tasks");
 
   res.json(sections);
 });
@@ -20,13 +20,11 @@ const getRoomSections = asyncHandler(async (req: Request, res: Response) => {
 const getSection = asyncHandler(async (req: Request, res: Response) => {
   const { sectionId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-    res.status(400);
-    throw Error("Id format not correct");
+    res.status(400).send({ error: "Id format not correct" });
   }
   const section = await Section.findById(sectionId).populate("tasks");
   if (!section) {
-    res.status(404);
-    throw Error("section not found");
+    res.status(404).send({ error: "section not found" });
   }
   res.json(section);
 });
@@ -37,8 +35,7 @@ const getSection = asyncHandler(async (req: Request, res: Response) => {
 const createSection = asyncHandler(async (req: Request, res: Response) => {
   const { roomId, name } = req.body;
   if (!roomId || !name) {
-    res.status(400);
-    throw Error("roomId and name is required");
+    res.status(400).send({ error: "roomId and name is required" });
   }
   const section: ISection = await Section.create({
     roomId,
@@ -55,12 +52,10 @@ const updateSection = asyncHandler(async (req: Request, res: Response) => {
   const { name } = req.body;
   const { sectionId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-    res.status(400);
-    throw Error("Id format not correct");
+    res.status(400).send({ error: "Id format not correct" });
   }
   if (!name) {
-    res.status(400);
-    throw Error("name is required");
+    res.status(400).send({ error: "name is required" });
   }
 
   const section = await Section.findById(sectionId);
@@ -70,8 +65,7 @@ const updateSection = asyncHandler(async (req: Request, res: Response) => {
     const updatedSection = await section.save();
     res.json(updatedSection);
   } else {
-    res.status(404);
-    throw Error("section not found");
+    res.status(404).send({ error: "section not found" });
   }
 });
 
@@ -82,15 +76,13 @@ const deleteSection = asyncHandler(async (req: Request, res: Response) => {
   const { sectionId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-    res.status(400);
-    throw Error("Id format not correct");
+    res.status(400).send({ error: "Id format not correct" });
   }
 
   const section = await Section.findByIdAndDelete(sectionId);
 
   if (!section) {
-    res.status(404);
-    throw Error("section not found");
+    res.status(404).send({ error: "section not found" });
   }
 
   res.json({ message: "section deleted" });

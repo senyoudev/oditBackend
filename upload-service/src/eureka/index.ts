@@ -1,10 +1,10 @@
 import { Eureka } from 'eureka-js-client';
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 const eurekaPort = process.env.EUREKA_PORT || 8761;
 const hostName = process.env.HOSTNAME || 'localhost';
 const eurekaHost =
-  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "eureka-server";
+  process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "localhost";
 const ipAddr = '127.0.0.1';
 
 const eurekaClient = new Eureka({

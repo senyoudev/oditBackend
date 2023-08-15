@@ -1,13 +1,13 @@
 import { Eureka } from "eureka-js-client";
 
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || 5003;
 const eurekaPort = process.env.EUREKA_PORT || 8761;
 const hostName = process.env.HOSTNAME || "localhost";
 const eurekaHost =
   process.env.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE || "127.0.0.1";
 const ipAddr = "127.0.0.1";
 
-const eurekaClient: any = new Eureka({
+export const eurekaClient: any = new Eureka({
   instance: {
     app: "Task",
     hostName: hostName,
@@ -26,8 +26,9 @@ const eurekaClient: any = new Eureka({
     host: eurekaHost,
     port: eurekaPort as number,
     servicePath: "/eureka/apps/",
-    maxRetries: 1,
-    preferIpAddress:true
+    maxRetries: 10,
+    requestRetryDelay: 5000,
+    //preferIpAddress: true,
   },
 });
 

@@ -3,18 +3,17 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
-import errorHandler from "./middlewares/errorMiddleware";
 import baseRoutes from "./routes";
 import http from "http";
 import { Server } from "socket.io";
-import { startEureka } from "./eureka";
+import eurekaClient, { startEureka } from "./eureka";
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 import connectDb from "./config/connectDb";
 
 connectDb();
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4001;
 
 app
   .use(
@@ -26,10 +25,9 @@ app
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
   .use("/api/v1", baseRoutes)
-  .use(errorHandler);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Upload Api Is running");
+  res.send("Task Api Is running");
 });
 
 //Socket.io
@@ -81,4 +79,8 @@ server.listen(port, async () => {
     `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
   );
   await startEureka();
-});
+}).on('close',()=>{
+  eurekaClient.stop(() => {
+    process.exit();
+  });
+})

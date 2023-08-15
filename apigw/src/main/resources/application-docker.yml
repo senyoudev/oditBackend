@@ -34,7 +34,7 @@ spring:
         - id: task
           uri: lb://task
           predicates:
-            - Path=/api/v1/tasks/**,/api/v1/sections/**
+            - Path=/api/v1/tasks/**,/api/v1/sections/**,/api/v1/user-tasks/**
           filters:
             - AuthenticationFilter
         - id: upload

@@ -35,7 +35,6 @@ app.listen(port, () => {
 });
 
 async function start() {
-    console.log("trying to start")
   eurekaClient.logger.level('debug');
 
   eurekaClient.start((error: any) => {
