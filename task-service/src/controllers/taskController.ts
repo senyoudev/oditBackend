@@ -1,3 +1,4 @@
+import { pushNotification } from "./../fcm";
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import Task from "../models/Task";
@@ -5,9 +6,10 @@ import Section from "../models/Section";
 import { ITask } from "../interfaces/Task";
 import eurekaClient from "../eureka";
 import axios from "axios";
+import admin from "firebase-admin";
 
 // @desc    Get Project Tasks
-// @route   GET /api/v1/project-tasks/:projectId
+// @route   GET /api/v1/user-tasks/:projectId
 // @access  Private
 const getProjectTasks = asyncHandler(async (req: Request, res: Response) => {
   const { projectId } = req.params;
@@ -36,7 +38,7 @@ const getProjectTasks = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 // @desc    Get User Tasks
-// @route   GET /api/v1/user-tasks/:projectId
+// @route   GET /api/v1/user-tasks
 // @access  Private
 const getUserTasks = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = req.query;
@@ -68,7 +70,10 @@ const getUserTasks = asyncHandler(async (req: Request, res: Response) => {
       });
       for (let k = 0; k < sections.length; k++) {
         for (let j = 0; j < sections[k].tasks.length; j++) {
-          tasks.push({ ...sections[k].tasks[j]._doc, projectName: data[i].title });
+          tasks.push({
+            ...sections[k].tasks[j]._doc,
+            projectName: data[i].title,
+          });
         }
       }
     }
@@ -217,6 +222,9 @@ const assignTask = asyncHandler(async (req: Request, res: Response) => {
 // @access  Private
 const markTaskDone = asyncHandler(async (req: Request, res: Response) => {
   const { taskId } = req.params;
+  const { roomId } = req.query;
+  const { username } = req.body;
+  console.log(roomId);
 
   const task: ITask | null = await Task.findByIdAndUpdate(taskId, {
     isDone: true,
@@ -226,7 +234,13 @@ const markTaskDone = asyncHandler(async (req: Request, res: Response) => {
     res.status(404).send({ error: "Task not found" });
   }
 
-  res.status(201).json(task);
+  pushNotification(
+    `room-${roomId}`,
+    "Task Info",
+    `task completed by ${username}`
+  );
+
+  res.status(201).json("task completed successfully");
 });
 // @desc    Add comment in task
 // @route   Put /api/v1/tasks/:taskId/comment
