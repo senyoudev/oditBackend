@@ -7,6 +7,7 @@ import baseRoutes from "./routes";
 import http from "http";
 import { Server } from "socket.io";
 import eurekaClient, { startEureka } from "./eureka";
+import admin from "firebase-admin";
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 import connectDb from "./config/connectDb";
@@ -24,7 +25,7 @@ app
   )
   .use(bodyParser.json({ limit: "30mb" }))
   .use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
-  .use("/api/v1", baseRoutes)
+  .use("/api/v1", baseRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Task Api Is running");
@@ -74,13 +75,24 @@ io.on("connect", (socket: any) => {
   });
 });
 
-server.listen(port, async () => {
-  console.log(
-    `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
-  );
-  await startEureka();
-}).on('close',()=>{
-  eurekaClient.stop(() => {
-    process.exit();
+server
+  .listen(port, async () => {
+    console.log(
+      `Server running at http://localhost:${port} on mode ${process.env.NODE_ENV}`
+    );
+    await startEureka();
+  })
+  .on("close", () => {
+    eurekaClient.stop(() => {
+      process.exit();
+    });
   });
-})
+
+const initFirebaseAdmin = () => {
+  const serviceAccount = require("../odit-app-b4ee5-firebase-adminsdk-9ugws-9bc5a09380.json");
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+};
+
+initFirebaseAdmin();
