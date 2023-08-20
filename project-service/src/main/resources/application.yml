@@ -11,19 +11,12 @@ spring:
     username: postgres
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-  rabbitmq:
-    exchanges:
-      internal: internal.exchange
-    queues:
-      notification: notification.queue
-    routing-keys:
-      internal-notification: internal.notification.routing-key
 
 Eureka:
   client:
