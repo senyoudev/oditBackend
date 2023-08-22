@@ -36,10 +36,10 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(String userName) {
+    /**public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return buildToken(claims, userName);
-    }
+    }*/
 
 
     public String generateToken(
@@ -52,7 +52,13 @@ public class JwtService {
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        return Jwts
+                .builder()
+                .setClaims(new HashMap<>())
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String buildToken(

@@ -41,7 +41,7 @@ public class ProjectMember {
     @JsonIgnore
     private Project project;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private Integer userId;
 
     @Column(nullable = false)

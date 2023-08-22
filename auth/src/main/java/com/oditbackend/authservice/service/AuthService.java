@@ -1,12 +1,13 @@
 package com.oditbackend.authservice.service;
 
 
+import com.example.amqp.RabbitMQMessageProducer;
 import com.example.helpers.exceptions.BadRequestException;
 import com.example.helpers.exceptions.ConflictException;
 import com.example.helpers.exceptions.NotFoundException;
+import com.example.helpers.exceptions.UnauthorizedException;
 import com.example.helpers.notifications.NotificationRequest;
 import com.example.helpers.notifications.NotificationType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oditbackend.authservice.Dto.AuthenticationRequest;
 import com.oditbackend.authservice.Dto.AuthenticationResponse;
 import com.oditbackend.authservice.Dto.RegisterRequest;
@@ -17,19 +18,14 @@ import com.oditbackend.authservice.entity.TokenType;
 import com.oditbackend.authservice.entity.User;
 import com.oditbackend.authservice.repository.TokenRepository;
 import com.oditbackend.authservice.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.amqp.RabbitMQMessageProducer;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -193,32 +189,25 @@ public class AuthService {
        tokenRepository.saveAll(validUserTokens);
     }
 
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    public String refreshToken(
+           String authorization
+    ) {
         final String refreshToken;
         final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            return;
+        if (authorization == null && !authorization.startsWith("Bearer ")) {
+            throw new UnauthorizedException("you are not authorized to do this operation");
         }
-        refreshToken = authHeader.substring(7);
+        refreshToken = authorization.substring(7);
         userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = userRepository.findByEmail(userEmail)
-                    .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
+        if (userEmail == null) {
+            throw new UnauthorizedException("you are not authorized to do this operation");
         }
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow();
+        String accessToken = jwtService.generateToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, accessToken);
+        return accessToken;
     }
 
 }
