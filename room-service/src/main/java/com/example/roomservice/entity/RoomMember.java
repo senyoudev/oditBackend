@@ -33,7 +33,7 @@ public class RoomMember {
             generator = "room_member_id_sequence"
     )
     private Integer id;
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private Integer memberId;
 
     @ManyToOne

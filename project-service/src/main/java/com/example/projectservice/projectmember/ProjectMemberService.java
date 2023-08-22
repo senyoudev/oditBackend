@@ -106,7 +106,10 @@ public class ProjectMemberService {
         );
     }
     public boolean checkIfAdmin(Integer userId,Integer projectId){
-        Optional<ProjectMember> admin = projectMemberRepository.findByRole(MemberRole.ADMIN);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundException("project not found"));
+
+        Optional<ProjectMember> admin = projectMemberRepository.findByProjectAndUserIdAndRole(project,userId,MemberRole.ADMIN);
         return admin.isPresent();
     }
 }

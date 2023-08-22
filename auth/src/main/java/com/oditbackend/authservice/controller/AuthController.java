@@ -3,13 +3,10 @@ package com.oditbackend.authservice.controller;
 import com.oditbackend.authservice.Dto.*;
 import com.oditbackend.authservice.service.AuthService;
 import com.oditbackend.authservice.service.PasswordResetService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -41,12 +38,11 @@ public class AuthController {
         return service.isTokenValidAsAdmin(token);
     }
 
-    @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        service.refreshToken(request, response);
+    @GetMapping("/refresh-token")
+    public String refreshToken(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization
+    ) {
+        return service.refreshToken(authorization);
     }
 
     @PostMapping("/reset-password/initiate")
